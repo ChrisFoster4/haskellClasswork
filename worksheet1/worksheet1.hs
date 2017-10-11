@@ -7,7 +7,7 @@ sumThree :: Int -> Int -> Int -> Int
 sumThree x y z = x + y + z
 
 areaOfCircle :: Float -> Float
-areaOfCircle radius = (pi * radius)**2--pi r **2
+areaOfCircle radius = (pi * radius)^2--pi r **2 Can use "**" or "^"
 
 volumeOfCyclinder :: Float -> Float -> Float
 volumeOfCyclinder height radius = height *  ( areaOfCircle radius)
@@ -16,7 +16,8 @@ distance :: Float -> Float -> Float -> Float -> Float
 distance x1 x2 y1 y2 = sqrt $ ((y1 -y2)**2 + (x1-x2)**2)
 
 threeDifferent :: Int -> Int -> Int -> Bool
-threeDifferent num1 num2 num3 = if (num1 < num2 && num2 < num3) || (num1 > num2 && num2 > num3) then True else False
+threeDifferent num1 num2 num3 = (num1 < num2 && num2 < num3) || (num1 > num2 && num2 > num3) 
+
 {-
 threeDifferent num1 num2 num3 = if (num1<num2<num3 || num1>num2>num3) then True else False 
 threeDifferent num1 num2 num3 = if num1 /= num2 && num1 /= num3 && num2 /= num1 && num2 /= num3 then True else False 
@@ -25,18 +26,18 @@ Is there a better way?
 -}
 
 divisibleBy :: Int -> Int -> Bool
-divisibleBy num1 num2 = if (num1 `mod` num2) == 0 then True else False
+divisibleBy num1 num2 = (num1 `mod` num2) == 0 
 
 isEven :: Int -> Bool
-isEven number = even number
+isEven number = divisibleBy 2 number --same as "even number"
 
 averageThree :: Int -> Int -> Int -> Float
-averageThree num1 num2 num3 = fromIntegral(num1 + num2 + num3)/3
+averageThree num1 num2 num3 = fromIntegral(sumThree num1 num2 num3)/3
 
 absolute :: Int -> Int --If the number is positive it returns the number.If the number is negative it returns the number without a minus sign
 --absolute (number) = if (number) >= 0 then number else 0
 --absolute (number) = if (number) >= 0 then number else (\number -> read $ tail $ show number :: Int) number
-absolute (number) = if (number) >= 0 then number else read $ tail $ show number :: Int
+absolute (number) = if (number) >= 0 then number else number * (-1)
 
 
 main :: IO()
