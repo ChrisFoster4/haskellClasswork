@@ -16,7 +16,7 @@ distance :: Float -> Float -> Float -> Float -> Float
 distance x1 x2 y1 y2 = sqrt $ ((y1 -y2)**2 + (x1-x2)**2)
 
 threeDifferent :: Int -> Int -> Int -> Bool
-threeDifferent num1 num2 num3 = (num1 < num2 && num2 < num3) || (num1 > num2 && num2 > num3) 
+threeDifferent num1 num2 num3 = ((num1/=num2) && (num1/=num3))&& (num1 /=num3) 
 
 {-
 threeDifferent num1 num2 num3 = if (num1<num2<num3 || num1>num2>num3) then True else False 
