@@ -39,19 +39,21 @@ validDate day month
 	| month == 12 && day <= 31 = True
    	| otherwise = False  --If a month more than 12 ect.
 
---howManyAboveAverage :: Int -> Int -> Int -> Int --Takes three ints and returns the number of them above average
---howManyAboveAverage num1 num2 num3
---	| (num1 > fromIntegralaverage) = 1
---	| otherwise = 0
---	where 
---	average = (num1 + num2 + num3)/3 
---	--average = fromIntegral(num1 + num2 + num3)/3 :: Float
+howManyAboveAverage :: Int -> Int -> Int -> Int --Takes three ints and returns the number of them above average
+howManyAboveAverage num1 num2 num3
+	| (num1 > average && num2 > average && num3 > average) = 3
+	| (num1 > average && num2 > average || num1 > average && num3 > average) = 2
+	| (num1 > average || num2 > average || num3 > average) = 1
+	| otherwise = 0
+	where 
+	average = (num1 + num2 + num3)`div`3 
+	--average = fromIntegral(num1 + num2 + num3)/3 :: Float
 
 daysInAMonth :: Int -> Int -> Int --Input month and year return days in a month
 daysInAMonth month year 
 	| month == 1 = 31
 	| month == 2 && ((year `mod` 4) == 0) = 29
-	| month == 2 = 28
+	| month == 2 = 28 --Tests down the guard and stops testing once a condition is met
 	| month == 3 = 31
 	| month == 4 = 30
 	| month == 5 = 31
