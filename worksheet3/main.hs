@@ -36,7 +36,7 @@ validDate :: Int -> Int -> Bool
 validDate 31 1 = True --TODO make this actually work
 validDate _ _= False
 
---Recusion Exercises
+--Recursion Exercises
 --Exercise 5
 --Like a factorial but with + instead of *
 sumNumber :: Int -> Int
@@ -51,9 +51,9 @@ sumSquares n = n^2 + sumSquares(n-1)
 
 --Exercise 7
 --Raise the first argument to the power of the second argument
-power :: Int -> Int -> Int --TODO make this recurrsive
-power b n = b^n 
-
+power :: Int -> Int -> Int
+power base 0 = 1
+power base powerRaised = base *( power base (powerRaised-1))
 
 --Exercise 8
 --Gives the product of all integers between the two arguments
@@ -67,14 +67,34 @@ sumFromToProper arg1 arg2 = sum [arg1..arg2] --TODO write this recurrsivly
 
 
 --Exercise 10
+--Return largest int that squared isn't larger than the input argument
+--intSquareRoot :: Int -> Int
+--intSquareRoot 1 = 1
+--intSquareRoot 
+
 --Exercise 11 
---Where guards have been used use pattern matching and vice versa
---Exercise 5 Version 2
---Exercise 6 Version 2
---Exercise 7 Version 2
---Exercise 8 Version 2
---Exercise 9 Version 2
---Exercise 10 Version 2
+--Exercise 5 Guard Version 
+sumNumberGuard :: Int -> Int
+sumNumberGuard n
+	       | n == 1 = 1
+	       | otherwise = n + sumNumberGuard(n-1)
+
+--Exercise 6 Guard Version 
+sumSquaresGuard :: Int -> Int
+sumSquaresGuard n
+		| n == 1 = 1
+		| otherwise = n^2 + sumSquaresGuard(n-1)
+
+--Exercise 7 Guard Version 
+
+
+--Exercise 8 Guard Version 
+
+
+--Exercise 9 Guard Version 
+
+
+--Exercise 10 Guard Version 
 
 
 main = do
@@ -83,10 +103,10 @@ main = do
 	--print $ exOr False True
 	--print $ exOr True True
 	--print $ exOr False False
-	--print $ sumNumber 3
-	--print $ sumNumber 4
 	--print $ sumSquares 3
 	--print $ power 2 3
-	print $ sumFromTo 5 8
+	--print $ sumFromToProper 5 8
+	--print $ power 2 2
+	--print $ power 9 3
 	putStrLn "EOP"
 	
