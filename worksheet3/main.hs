@@ -105,10 +105,30 @@ gcdGuard num1 num2
 --Exercise 10 Guard Version 
 --Return largest int that squared isn't larger than the input argument
 --intSquareRootGuard :: Int -> Int
---intSquareRootGuard number
---		| number  
+--intSquareRootGuard number = recursiveGuard number
 
-intSquareRootAlternate number = sqrt $ last $ takeWhile (<=number) $ (\x -> x^2) <$> [1..]  --Does this work?
+--isASquare :: Int -> Bool
+----isASquare :: (RealFrac a, Floating a) -> Bool
+--isASquare n = truncate(sqrt(x) * truncate(sqrt(x)) == n
+--		where x = fromIntegral n
+--
+isSquare :: Int -> Bool
+isSquare n = truncate(sqrt(x)) * truncate(sqrt(x)) == n
+             where x = fromIntegral n
+
+
+--Round needed to stop it returning a float
+ex10 :: Int -> Int
+ex10 number = round $ sqrt (fromIntegral(recursiveGuard number))
+
+recursiveGuard :: Int -> Int
+recursiveGuard number 
+		| isSquare number = number
+		| otherwise = recursiveGuard (number -1)
+
+--Round only to convert float -> int (e.g. 9.0 -> 9)
+intSquareRootAlternate number = round $ sqrt $ last $ takeWhile (<=number) $ (\x -> x^2) <$> [1..]   
+--Does this work?
 
 main = do
 	--print $ True && True
@@ -128,9 +148,13 @@ main = do
 	print $ gcdGuard 8 8
 	print $ gcdGuard 8 12
 	print $ gcdGuard 54 24
-	print $ intSquareRootAlternate 26
-	print $ intSquareRootAlternate 82
-	print $ intSquareRootAlternate 9
+	print $ isSquare 5
+	print $ isSquare 4
+	print $ ex10 7
+	print $ ex10 9
+	--print $ intSquareRootAlternate 26 
+	--print $ intSquareRootAlternate 82
+	print $ intSquareRootAlternate 7
 	print $ intSquareRootAlternate 7
 	putStrLn "EOP"
 	
