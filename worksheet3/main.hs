@@ -1,4 +1,4 @@
-module Main where
+--module Main where
 import Prelude hiding ((&&),gcd) 
 
 --Pattern Matching Exercises
@@ -55,7 +55,7 @@ sumSquares n = n^2 + sumSquares (n-1)
 --Raise the first argument to the power of the second argument
 power :: Int -> Int -> Int
 power base 0 = 1
-power base powerRaised = base * (power base (powerRaised-1) )
+power base powerRaised = base * (power base (powerRaised - 1))
 
 --Exercise 8 --TODO
 --Gives the product of all integers between the two arguments
@@ -63,7 +63,12 @@ power base powerRaised = base * (power base (powerRaised-1) )
 sumFromToAlternate :: Int -> Int -> Int
 sumFromToAlternate arg1 arg2 = sum [arg1..arg2] 
 
+--sumFromTo :: Int -> Int
+--sumFromTo arg1 arg2 
+--sumFromto arg1
+
 --Exercise 9
+
 
 
 --Exercise 10
@@ -101,22 +106,10 @@ gcdGuard num1 num2
 		| num1 == num2 = num1 
 		| num1 > num2 = gcdGuard (num1-num2) num2
 		| num1 < num2 = gcdGuard (num2-num1) num1
+		--no otherwise needed as one of the three guards will always pass. otherwise could be used to throw an error?
 
 --Exercise 10 Guard Version 
 --Return largest int that squared isn't larger than the input argument
---intSquareRootGuard :: Int -> Int
---intSquareRootGuard number = recursiveGuard number
-
---isASquare :: Int -> Bool
-----isASquare :: (RealFrac a, Floating a) -> Bool
---isASquare n = truncate(sqrt(x) * truncate(sqrt(x)) == n
---		where x = fromIntegral n
---
-isSquare :: Int -> Bool
-isSquare n = truncate(sqrt(x)) * truncate(sqrt(x)) == n
-             where x = fromIntegral n
-
-
 --Round needed to stop it returning a float
 ex10 :: Int -> Int
 ex10 number = round $ sqrt (fromIntegral(recursiveGuard number))
@@ -126,11 +119,16 @@ recursiveGuard number
 		| isSquare number = number
 		| otherwise = recursiveGuard (number -1)
 
---Round only to convert float -> int (e.g. 9.0 -> 9)
-intSquareRootAlternate number = round $ sqrt $ last $ takeWhile (<=number) $ (\x -> x^2) <$> [1..]   
+isSquare :: Int -> Bool
+isSquare n = truncate(sqrt(x)) * truncate(sqrt(x)) == n
+             where x = fromIntegral n
+
+--Round/truncate only to convert float -> int (e.g. 9.0 -> 9)
+intSquareRootAlternate number = truncate $ sqrt $ last $ takeWhile (<=number) $ map (^2) [1..]   
 --Does this work?
 
-main = do
+--main = do
+tests = do
 	--print $ True && True
 	--print $ False && True
 	--print $ exOr False True
@@ -145,16 +143,20 @@ main = do
 	--print $ power 9 3
 	--print $ ifThenElse True 5 6
 	--print $ ifThenElse False 5 6
-	print $ gcdGuard 8 8
-	print $ gcdGuard 8 12
-	print $ gcdGuard 54 24
-	print $ isSquare 5
-	print $ isSquare 4
+--	print $ gcdGuard 8 8
+--	print $ gcdGuard 8 12
+--	print $ gcdGuard 54 24
+
+	putStrLn "ex10 recurrsive version"
+	print $ ex10 26 
+	print $ ex10 82
 	print $ ex10 7
 	print $ ex10 9
-	--print $ intSquareRootAlternate 26 
-	--print $ intSquareRootAlternate 82
+
+	putStrLn "alternate version"
+	print $ intSquareRootAlternate 26 
+	print $ intSquareRootAlternate 82
 	print $ intSquareRootAlternate 7
-	print $ intSquareRootAlternate 7
+	print $ intSquareRootAlternate 9
 	putStrLn "EOP"
 	
