@@ -1,4 +1,3 @@
---module Main where
 import Prelude hiding ((&&),gcd) 
 
 --Pattern Matching Exercises
@@ -37,6 +36,7 @@ daysInMonth _ = 31 --Months(1,3,5,7,8,10,12)
 --validDate ((daysInMonth b) > n) = True
 --validDate 31 1 = True --TODO 
 --validDate _ _= False
+	
 
 --Recursion Exercises
 --Exercise 5
@@ -57,18 +57,14 @@ power :: Int -> Int -> Int
 power base 0 = 1
 power base powerRaised = base * (power base (powerRaised - 1))
 
---Exercise 8 --TODO
+--Exercise 8 
 --Gives the product of all integers between the two arguments
 --If the first argument > second argument return 0
 sumFromToAlternate :: Int -> Int -> Int
 sumFromToAlternate arg1 arg2 = sum [arg1..arg2] 
-
---sumFromTo :: Int -> Int
---sumFromTo arg1 arg2 
---sumFromto arg1
+--Better done with a guard than a pattern
 
 --Exercise 9
-
 
 
 --Exercise 10
@@ -111,21 +107,18 @@ gcdGuard num1 num2
 --Exercise 10 Guard Version 
 --Return largest int that squared isn't larger than the input argument
 --Round needed to stop it returning a float
-ex10 :: Int -> Int
-ex10 number = round $ sqrt (fromIntegral(recursiveGuard number))
+intSquareRoot :: Int -> Int
+intSquareRoot number = round $ sqrt (fromIntegral(recursiveGuard number))
 
 recursiveGuard :: Int -> Int
 recursiveGuard number 
-		| isSquare number = number
+		| ((truncate(sqrt(fromIntegral number))^2)==number) = number
 		| otherwise = recursiveGuard (number -1)
 
-isSquare :: Int -> Bool
-isSquare n = truncate(sqrt(x)) * truncate(sqrt(x)) == n
-             where x = fromIntegral n
 
 --Round/truncate only to convert float -> int (e.g. 9.0 -> 9)
-intSquareRootAlternate number = truncate $ sqrt $ last $ takeWhile (<=number) $ map (^2) [1..]   
---Does this work?
+intSquareRootAlternate number = truncate $ sqrt $ last $ takeWhile (<=number) $ [i^2 | i <- [1..]]
+--intSquareRootAlternate number = truncate $ sqrt $ last $ takeWhile (<=number) $ map (^2) [1..]   
 
 --main = do
 tests = do
@@ -147,11 +140,11 @@ tests = do
 --	print $ gcdGuard 8 12
 --	print $ gcdGuard 54 24
 
-	putStrLn "ex10 recurrsive version"
-	print $ ex10 26 
-	print $ ex10 82
-	print $ ex10 7
-	print $ ex10 9
+	putStrLn "intSquareRoot recurrsive version"
+	print $ intSquareRoot 26 
+	print $ intSquareRoot 82
+	print $ intSquareRoot 7
+	print $ intSquareRoot 9
 
 	putStrLn "alternate version"
 	print $ intSquareRootAlternate 26 
