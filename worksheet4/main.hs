@@ -53,17 +53,36 @@ capMarks list = [capMark(i,j) | (i,j) <- list]
 
 --Exercise 9
 --gradeStudents :: [StudentMark] -> [(String,Char)]
+--gradeStudents list = (map fst list,map (grade) snd list)
 --gradeStudents list = [(i,(grade j)) | (i,j) <- list] --TODO
 
 --Exercise 10
 nonRecursiveDuplicate :: Int -> String -> String
 nonRecursiveDuplicate num string = concat $ replicate num string
 
+duplicate :: Int -> String -> String
+duplicate numOfTimes string = recurviseGuard string numOfTimes
+
+recurviseGuard :: String -> Int -> String
+recurviseGuard string numOfTimes
+		| numOfTimes == 1 = string
+		| otherwise = string ++ (recurviseGuard string (numOfTimes - 1))
+
 --Exercise 11
+divisors :: Int -> [Int]
+divisors number = [i | i <- [1..number],number `mod` i == 0]
+
 --Exercise 12
+isPrime :: Int -> Bool
+isPrime number =  (length $ divisors number) <= 2 
+
 --Exercise 13
+split :: [(a,b)] -> ([a],[b])
+split input = (map fst input,map snd input) --TODO use list comprehension not map
 
 
-main = do
-	print $ capMarks [("Test0",50),("Test1",30)]
+main = do 
+	print $ split [(1,'a'),(2,'b'),(3,'c')]
+--	print $ capMarks [("Test0",50),("Test1",30)]
 	--print $ gradeStudents [("Test0",50),("Test1",30)]
+	
