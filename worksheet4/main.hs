@@ -11,10 +11,18 @@ sumDifference num1 num2 = ((num1+num2),(num1-num2))
 
 --Exercise 2
 --Return student grade from percentage
-type StudentMark = (String,Int)
+type StudentMark = (String,Int) --Not sure if this is meant to be (String,Int) or Int
 
-grade :: StudentMark -> Char
-grade (_,mark)
+--grade :: StudentMark -> Char
+--grade (_,mark)
+--		| mark >= 70 = 'A'
+--		| mark >= 60 = 'B'
+--		| mark >= 50 = 'C'
+--		| mark >= 40 = 'D'
+--		| otherwise = 'F'
+
+gradeAlt :: Int -> Char
+gradeAlt mark
 		| mark >= 70 = 'A'
 		| mark >= 60 = 'B'
 		| mark >= 50 = 'C'
@@ -52,9 +60,8 @@ capMarks :: [StudentMark] -> [StudentMark]
 capMarks list = [capMark(i,j) | (i,j) <- list]
 
 --Exercise 9
---gradeStudents :: [StudentMark] -> [(String,Char)]
---gradeStudents list = (map fst list,map (grade) snd list)
---gradeStudents list = [(i,(grade j)) | (i,j) <- list] --TODO
+gradeStudents :: [StudentMark] -> [(String,Char)]
+gradeStudents list = [(i,(gradeAlt j)) | (i,j) <- list] 
 
 --Exercise 10
 nonRecursiveDuplicate :: Int -> String -> String
@@ -77,12 +84,16 @@ isPrime :: Int -> Bool
 isPrime number =  (length $ divisors number) <= 2 
 
 --Exercise 13
+splitMapVer :: [(a,b)] -> ([a],[b])
+splitMapVer input = (fst <$> input,snd <$> input) --TODO use list comprehension not map
+
 split :: [(a,b)] -> ([a],[b])
-split input = (map fst input,map snd input) --TODO use list comprehension not map
+--split input =  [ (\ (x,y) -> ([x],[y])) | (x,y) <- input]
+--split input = [([fst i],[snd i]) | i <- input]
 
 
 main = do 
-	print $ split [(1,'a'),(2,'b'),(3,'c')]
+	print $ splitMapVer [(1,'a'),(2,'b'),(3,'c')]
 --	print $ capMarks [("Test0",50),("Test1",30)]
-	--print $ gradeStudents [("Test0",50),("Test1",30)]
+	print $ gradeStudents [("Jo",47), ("Sam",76)]
 	
