@@ -1,3 +1,4 @@
+import qualified Data.List --Used for exercise 13
 import qualified Data.Char --Used for exercise 6
 
 --Tuples Exercises
@@ -53,7 +54,9 @@ capitalise word = map Data.Char.toUpper word
 --Exercise 7
 onlyDigits :: String -> String
 onlyDigits word = [i | i <- word , Data.Char.isDigit i == True]
---onlyDigits word = filter Data.Char.isDigit word
+
+onlyDigitsAlt :: String -> String
+onlyDigitsAlt word = filter Data.Char.isDigit word
 
 --Exercise 8
 capMarks :: [StudentMark] -> [StudentMark]
@@ -85,15 +88,36 @@ isPrime number =  (length $ divisors number) <= 2
 
 --Exercise 13
 splitMapVer :: [(a,b)] -> ([a],[b])
-splitMapVer input = (fst <$> input,snd <$> input) --TODO use list comprehension not map
+splitMapVer input = (fst `map` input,snd `map` input) --TODO use list comprehension not map
 
-split :: [(a,b)] -> ([a],[b])
+splitUnzipVer :: [(a,b)] -> ([a],[b])
+splitUnzipVer list = Data.List.unzip list
+
+
+--Can you return two lists from a list comprehension
+--Could this be done with a custom data type
+--Expected output : ([1,2,3],"abc") from [(1,'a'),(2,'b'),(3,'c')]
+--split :: [(a,b)] -> ([a],[b])
+
+
+
+--split list =  [(fst a,snd a) | a <- list]  
+--split list =  [([a],[b]) | a <- (map fst list) , b <- (map snd list)]
 --split input =  [ (\ (x,y) -> ([x],[y])) | (x,y) <- input]
 --split input = [([fst i],[snd i]) | i <- input]
+--Compile but don't work
+--split list =  [[(fst a,snd a)] | a <- list]  --[[(1,'a')],[(2,'b')],[(3,'c')]]
+--split list =  [([fst] a],[snd a]) | a <- list]  --[[(1,'a')],[(2,'b')],[(3,'c')]]
+--split list =  [[(fst a,snd a)] | a <- list] --[[(1,'a')],[(2,'b')],[(3,'c')]]
+--split list =  [([fst a],[snd a]) | a <- list]  --[[(1,'a')],[(2,'b')],[(3,'c')]]
+--split list =  [(fst a,snd a) | a <- list]  --[(1,'a'),(2,'b'),(3,'c')]
+
 
 
 main = do 
 	print $ splitMapVer [(1,'a'),(2,'b'),(3,'c')]
+	print $ splitUnzipVer [(1,'a'),(2,'b'),(3,'c')]
+	--print $ split [(1,'a'),(2,'b'),(3,'c')]
 --	print $ capMarks [("Test0",50),("Test1",30)]
 	print $ gradeStudents [("Jo",47), ("Sam",76)]
 	
