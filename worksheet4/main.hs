@@ -14,21 +14,14 @@ sumDifference num1 num2 = ((num1+num2),(num1-num2))
 --Return student grade from percentage
 type StudentMark = (String,Int) --Not sure if this is meant to be (String,Int) or Int
 
---grade :: StudentMark -> Char
---grade (_,mark)
---		| mark >= 70 = 'A'
---		| mark >= 60 = 'B'
---		| mark >= 50 = 'C'
---		| mark >= 40 = 'D'
---		| otherwise = 'F'
-
-gradeAlt :: Int -> Char
-gradeAlt mark
+grade :: StudentMark -> Char
+grade (_,mark)
 		| mark >= 70 = 'A'
 		| mark >= 60 = 'B'
 		| mark >= 50 = 'C'
 		| mark >= 40 = 'D'
 		| otherwise = 'F'
+
 
 --Exercise 3
 --Return 40 or less
@@ -64,7 +57,7 @@ capMarks list = [capMark(i,j) | (i,j) <- list]
 
 --Exercise 9
 gradeStudents :: [StudentMark] -> [(String,Char)]
-gradeStudents list = [(i,(gradeAlt j)) | (i,j) <- list]
+gradeStudents list = [(i,(grade (i,j))) | (i,j) <- list]
 
 --Exercise 10
 nonRecursiveDuplicate :: Int -> String -> String
