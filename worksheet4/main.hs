@@ -22,7 +22,6 @@ grade (_,mark)
 		| mark >= 40 = 'D'
 		| otherwise = 'F'
 
-
 --Exercise 3
 --Return 40 or less
 capMark :: StudentMark -> StudentMark
@@ -90,26 +89,12 @@ splitUnzipVer list = Data.List.unzip list
 --Can you return two lists from a list comprehension
 --Could this be done with a custom data type
 --Expected output : ([1,2,3],"abc") from [(1,'a'),(2,'b'),(3,'c')]
---split :: [(a,b)] -> ([a],[b])
-
-
-
---split list =  [(fst a,snd a) | a <- list]
---split list =  [([a],[b]) | a <- (map fst list) , b <- (map snd list)]
---split input =  [ (\ (x,y) -> ([x],[y])) | (x,y) <- input]
---split input = [([fst i],[snd i]) | i <- input]
---Compile but don't work
---split list =  [[(fst a,snd a)] | a <- list]  --[[(1,'a')],[(2,'b')],[(3,'c')]]
---split list =  [([fst] a],[snd a]) | a <- list]  --[[(1,'a')],[(2,'b')],[(3,'c')]]
---split list =  [[(fst a,snd a)] | a <- list] --[[(1,'a')],[(2,'b')],[(3,'c')]]
---split list =  [([fst a],[snd a]) | a <- list]  --[[(1,'a')],[(2,'b')],[(3,'c')]]
---split list =  [(fst a,snd a) | a <- list]  --[(1,'a'),(2,'b'),(3,'c')]
-
+split :: [(a,b)] -> ([a],[b])
+split list = ([a|(a,_) <- list],[b|(_,b) <- list])
 
 
 main = do
 	print $ splitMapVer [(1,'a'),(2,'b'),(3,'c')]
 	print $ splitUnzipVer [(1,'a'),(2,'b'),(3,'c')]
-	--print $ split [(1,'a'),(2,'b'),(3,'c')]
---	print $ capMarks [("Test0",50),("Test1",30)]
+	print $ split [(1,'a'),(2,'b'),(3,'c')]
 	print $ gradeStudents [("Jo",47), ("Sam",76)]
