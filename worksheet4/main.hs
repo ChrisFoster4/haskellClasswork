@@ -48,12 +48,12 @@ firstSquares :: Int -> [Int]
 firstSquares number = [ i^2 | i <- [1..number]]
 
 --Exercise 6
-capitalise :: String -> String 
-capitalise word = map Data.Char.toUpper word  
+capitalise :: String -> String
+capitalise word = map Data.Char.toUpper word
 
 --Exercise 7
 onlyDigits :: String -> String
-onlyDigits word = [i | i <- word , Data.Char.isDigit i == True]
+onlyDigits word = [i | i <- word , Data.Char.isDigit i]--If isDigit i == true
 
 onlyDigitsAlt :: String -> String
 onlyDigitsAlt word = filter Data.Char.isDigit word
@@ -64,7 +64,7 @@ capMarks list = [capMark(i,j) | (i,j) <- list]
 
 --Exercise 9
 gradeStudents :: [StudentMark] -> [(String,Char)]
-gradeStudents list = [(i,(gradeAlt j)) | (i,j) <- list] 
+gradeStudents list = [(i,(gradeAlt j)) | (i,j) <- list]
 
 --Exercise 10
 nonRecursiveDuplicate :: Int -> String -> String
@@ -84,7 +84,7 @@ divisors number = [i | i <- [1..number],number `mod` i == 0]
 
 --Exercise 12
 isPrime :: Int -> Bool
-isPrime number =  (length $ divisors number) <= 2 
+isPrime number =  (length $ divisors number) <= 2
 
 --Exercise 13
 splitMapVer :: [(a,b)] -> ([a],[b])
@@ -101,7 +101,7 @@ splitUnzipVer list = Data.List.unzip list
 
 
 
---split list =  [(fst a,snd a) | a <- list]  
+--split list =  [(fst a,snd a) | a <- list]
 --split list =  [([a],[b]) | a <- (map fst list) , b <- (map snd list)]
 --split input =  [ (\ (x,y) -> ([x],[y])) | (x,y) <- input]
 --split input = [([fst i],[snd i]) | i <- input]
@@ -114,10 +114,9 @@ splitUnzipVer list = Data.List.unzip list
 
 
 
-main = do 
+main = do
 	print $ splitMapVer [(1,'a'),(2,'b'),(3,'c')]
 	print $ splitUnzipVer [(1,'a'),(2,'b'),(3,'c')]
 	--print $ split [(1,'a'),(2,'b'),(3,'c')]
 --	print $ capMarks [("Test0",50),("Test1",30)]
 	print $ gradeStudents [("Jo",47), ("Sam",76)]
-	
