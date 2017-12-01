@@ -27,10 +27,11 @@ listLength n = 0
 
 --Exercise 5
 multAll :: [Int] -> Int
-multAll (x:xs) = x * multAll (xs) --TODO doesnt work
-multAll [] = 0
-multAll [x] = x 
---multAll [n] = [n] !! 0
+multAll (x:xs) = x * multAll xs
+multAll [] = 1
+
+multAllAlt :: [Int] -> Int
+multAllAlt list = product list
 
 --Exercise 6
 andAllAlt :: [Bool] -> Bool
@@ -45,7 +46,7 @@ andAll [] = True
 --countElems :: Int -> [Int] -> Int
 --countElems num list = 
 countElems :: Int -> [Int] -> Int
-countElems  y (x:xs) = if x == y then 1+ (countElems y xs) else countElems y xs
+countElems  y (x:xs) = if x == y then 1 + (countElems y xs) else countElems y xs
 countElems y [] = 0 --I expected this to make it always return 0.
 
 countElemsAlt :: Int -> [Int] -> Int
@@ -60,8 +61,14 @@ removeAll num (x:xs) = if x == num then removeAll num xs else x :(removeAll num 
 removeAll num [] = []
 
 --Exercise 9
---listMarks :: String -> [(String,Int)] -> Int
+type StudentMark = (String,Int)
+--listMarks student [(x,xs)] = if fst x == student then snd x : (listMarks student xs)else listMarks student xs
+listMarks :: String -> [(String,Int)] -> [Int]
+listMarks student (x:xs) = if fst x == student then snd x : (listMarks student xs) else listMarks student xs
+listMarks student [] = []
+
 --Exercise 10
+
 --Exercise 11
 --sunsequence :: [Int] -> [Int] -> Bool
 subsequenceAlt :: [Int] -> [Int] -> Bool
@@ -69,6 +76,5 @@ subsequenceAlt list list2 = list `Data.List.isSubsequenceOf` list2
 
 
 main =do
-
-
-	 putStrLn "EOP"
+	print $ listMarks "Joe" [("Joe", 45), ("Sam", 70), ("Joe", 52)] 
+	putStrLn "EOP"
