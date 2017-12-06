@@ -1,30 +1,31 @@
-import qualified Data.List(isSubsequenceOf) --Used in ex13
+--import qualified Data.List(isSubsequenceOf) --Used in ex13
 
 --Exercise 1
 --Return the val of head + 1
 headPlusOne :: [Int] -> Int
 headPlusOne [] = 0
-headPlusOne [n,_] = (head [n] + 1) --TODO Could this only be two lines?
-headPlusOne [n] = (head [n] + 1) --Non exhaustive pattern if line removed.
+headPlusOne (x:_) = (head [x] + 1) --TODO Could this only be two lines?
+--headPlusOne [n] = (head [n] + 1) --Non exhaustive pattern if line removed.
+
 
 
 --Exercise 2
 --Add the value at the start of the list before the list
 duplicateHead :: [Int] -> [Int]
 duplicateHead [] = []
-duplicateHead list = head list:list
+duplicateHead (x:xs) = x:(x:xs)
 
 
 --Exercise 3
 rotate :: [a] -> [a]
 rotate (x:y:xs) = y:x:xs
-rotate n = n
+rotate xs = xs
 
 --Exercise 4
 --Recreate length function
 listLength :: [a] -> Int
-listLength (x:xs) = 1 + listLength (xs)
-listLength n = 0
+listLength (x:xs) = 1 + listLength xs
+listLength [] = 0
 
 --Exercise 5
 multAllAlt :: [Int] -> Int
@@ -68,17 +69,20 @@ listMarks student [] = []
 --Exercise 10
 --Check if the first argument is a prefix to the second argument
 prefix :: [Int] -> [Int] -> Bool
-prefix [] (_) = True
-prefix (y:ys) (x:xs)= if y /= x then False else prefix ys xs
-prefix (y) (x) = y == x
+prefix [] _ = True
+prefix (y:ys) (x:xs) = if y /= x then False else prefix ys xs
+prefix (x:xs) [] = False
 
 --Exercise 11
 subsequences :: [Int] -> [Int] -> Bool
-subsequences (y:ys) (x:xs) = if prefix (y:ys) (x:xs) then True else subsequences (y:ys) (xs)
+subsequences ys (x:xs) = if prefix ys (x:xs) then True else subsequences ys (xs)
 subsequences (y:ys) [] = False
+subsequences [] [] = True
 
-subsequenceAlt :: [Int] -> [Int] -> Bool
-subsequenceAlt list list2 = list `Data.List.isSubsequenceOf` list2
+
+
+--subsequenceAlt :: [Int] -> [Int] -> Bool
+--subsequenceAlt list list2 = list `Data.List.isSubsequenceOf` list2
 
 subsequencesBroken :: [Int] -> [Int] -> Bool
 subsequencesBroken (y:ys) (x:xs) = if y == x then subsequences ys xs else subsequences (y:ys) xs
