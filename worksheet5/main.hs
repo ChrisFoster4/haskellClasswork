@@ -37,7 +37,7 @@ multAll [] = 1
 
 --Exercise 6
 andAllAlt :: [Bool] -> Bool
-andAllAlt list = if elem False list then False else True
+andAllAlt list = not$ elem False list 
 
 andAll :: [Bool] -> Bool
 andAll (x:xs) = if x == False then False else andAll xs
