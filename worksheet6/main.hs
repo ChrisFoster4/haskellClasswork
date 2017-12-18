@@ -1,4 +1,4 @@
-import qualified Data.Char -- Used in Exercise 2
+import qualified Data.Char -- Used in Exercise 2 and 13
 
 
 --Exercise 1
@@ -21,7 +21,6 @@ sumSquaresAlt :: [Int] -> Int
 sumSquaresAlt list = foldr (+) 0 $ map (^2) list
 
 --Exercise 5
---What type signiture is this.GHCI says zeroToTen :: (Ord a, Num a) => [a] -> [a]
 zeroToTen list = filter (<= 10) $ filter (>=0) list
 --Exercise 6
 squareRoots list = filter (>0) $ map sqrt list
@@ -53,5 +52,19 @@ zeroToTenAlt list = filter (\x -> x <= 10 &&  x >= 0) list
 --Exercise 13
 --Using only Lamdas and foldr's
 --Part 1 - mult10 
+mult10Alt list = foldr (\ head' tail' -> (head' * 10) : tail') [] list
+
+mult10AltAlt [] = []
+mult10AltAlt (x:xs) = x*10 : mult10Alt xs
+
 --Part 2 - reverse a list
+myReverse list = foldl (\ head' tail' -> tail' : head') [] list
+
+myReverseAlt (x:xs) = myReverse xs ++ [x]
+myReverseAlt [] = []
+
 --Part 3 - onlyLowerCase
+onlyLowerCaseAlt list = foldr (\ head' tail' -> if Data.Char.isLower head' then head' : tail' else tail') [] list
+
+onlyLowerCaseAltAlt [] = []
+onlyLowerCaseAltAlt (x:xs) = if Data.Char.isLower x then x : onlyLowerCase xs else onlyLowerCase xs
