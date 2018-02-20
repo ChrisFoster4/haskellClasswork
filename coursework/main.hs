@@ -1,9 +1,6 @@
---
 -- MATHFUN
 -- Template for the Haskell assignment program (replace this comment)
 -- Add your student number
---
-
 --
 -- Types
 --
@@ -34,24 +31,37 @@
 --demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
 --demo 8  = films between 2000 and 2006 inclusive sorted by website rating
 
---
---
--- Your user interface code goes here
---
---
-type Title = String
-type Director = String
-type YearOfRelease = Int
-type UsersWhoLike = [String]
-type UsersWhoDislike = [String]
+-- Your user interface code goes
 
-data Film = Film Title Director YearOfRelease UsersWhoLike UsersWhoDislike deriving (Show,Read,Ord,Eq) --TODO check if it needs to derive all these type classes
+data Film = Film
+ { title :: String
+ , director :: String
+ , yearOfRelease :: Int
+ , usersWhoLike :: [String]
+ , usersWhoDislike :: [String]
+ } deriving (Show,Read,Ord,Eq) --TODO check if all these 4 classes need to be derivived
+
+addFilm :: Film -> [Film] -> [Film]
+addFilm newFilm listOfFilms = [newFilm] ++ listOfFilms
+
+showFilms :: [Film] -> IO ()
+showFilms listOfFilms = print listOfFilms
+
+filterFilmByDirector :: String -> [Film] -> [Film]
+filterFilmByDirector directorName listOfFilms = filter ((==directorName) . director) listOfFilms
+
+outputFilmTitles :: [Film] -> [String]
+outputFilmTitles ((Film title _ _ _ _):xs) = [title] ++ outputFilmTitles xs
+outputFilmTitles [] = []
+
+testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
+testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
+testFilms = [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt]
+
 main :: IO()
 main = do
     let y = [Film]
     let x = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
     print x
-    print $ y ++ x
-    
-
+    -- print $ y ++ x
     putStrLn "EOP"
