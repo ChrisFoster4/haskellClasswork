@@ -18,11 +18,12 @@
 -- Demo function to test basic functionality (without persistence - i.e.
 -- testDatabase doesn't change and nothing is saved/loaded to/from file).
 
---demo :: Int -> IO ()
+demo :: Int -> IO ()
 --demo 1  = putStrLn all films after adding 2018 film "Sherlock Gnomes"
+--demo 1  =  printFilm `map` testDatabase
 --          directed by by "John Stevenson" to testDatabase
 --demo 2  = putStrLn (filmsAsString testDatabase)
---demo 3  = putStrLn all films by "Ridley Scott"
+demo 3  = print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDatabase -- TODO check print is fine here. Is putStrLn required?
 --demo 4  = putStrLn all films with website rating >= 75%
 --demo 5  = putStrLn average website rating for "Ridley Scott"
 --demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
@@ -41,21 +42,39 @@ data Film = Film
  , usersWhoDislike :: [String]
  } deriving (Show,Read,Ord,Eq) --TODO check if all these 4 classes need to be derivived
 
+type User = String --TODO might remove this.Depends on readability of completed program
+
 addFilm :: Film -> [Film] -> [Film]
-addFilm newFilm listOfFilms = [newFilm] ++ listOfFilms
+addFilm newFilm listOfFilms =  listOfFilms ++ [newFilm]
+
+likeFilm :: User -> Film -> Film
+likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike --TODO check they havent already liked the film
+
+dislikeFilm :: User -> Film -> Film
+dislikeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease usersWhoLike  (usersWhoDislike ++ [user]) --TODO check they havent already disliked the film
+
+--TODO 
+--1.Make code on multiple lines not one
+--2.Format users who like and usersWhoDislike better
+printFilm :: Film -> IO ()
+printFilm film = putStrLn $ "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
+
+
+--TODO Type signiture
+getRatingOfFilm film = (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
 
 showFilms :: [Film] -> IO ()
 showFilms listOfFilms = print listOfFilms
 
-filterFilmByDirector :: String -> [Film] -> [Film]
-filterFilmByDirector directorName listOfFilms = filter ((==directorName) . director) listOfFilms
+getFilmByDirector :: String -> [Film] -> [Film]
+getFilmByDirector directorName listOfFilms = filter (\film -> director film == directorName) listOfFilms
 
 outputFilmTitles :: [Film] -> [String]
 outputFilmTitles ((Film title _ _ _ _):xs) = [title] ++ outputFilmTitles xs --TODO Do this non recurrsively with a similar method to filterFilmByDirector?
 outputFilmTitles [] = []
 
-testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
 testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
+testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
 testFilms = [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt]
 
 testDatabase = [
@@ -88,9 +107,6 @@ testDatabase = [
 
 main :: IO()
 main = do
-    let y = [Film]
-    let x = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
-
-    print $ filterFilmByDirector "Ridley Scott" testDatabase
-    print $ outputFilmTitles $ filterFilmByDirector "Ridley Scott" testDatabase
+    print $ getFilmByDirector "Ridley Scott" testDatabase
+    print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDatabase
     putStrLn "EOP"
