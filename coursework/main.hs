@@ -18,12 +18,11 @@
 -- Demo function to test basic functionality (without persistence - i.e.
 -- testDatabase doesn't change and nothing is saved/loaded to/from file).
 
-demo :: Int -> IO ()
 --demo 1  = putStrLn all films after adding 2018 film "Sherlock Gnomes"
 --demo 1  =  printFilm `map` testDatabase
 --          directed by by "John Stevenson" to testDatabase
 --demo 2  = putStrLn (filmsAsString testDatabase)
-demo 3  = print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDatabase -- TODO check print is fine here. Is putStrLn required?
+--demo 3  = putStrLn all films by "Ridley Scott"
 --demo 4  = putStrLn all films with website rating >= 75%
 --demo 5  = putStrLn average website rating for "Ridley Scott"
 --demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
@@ -32,6 +31,20 @@ demo 3  = print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDataba
 --demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
 --demo 8  = films between 2000 and 2006 inclusive sorted by website rating
 
+demo :: Int -> IO ()
+demo 1 = showFilms $ addFilm (Film "Sherlock Gnomes" "Guy Ritchie" 2018 [] []) testDatabase --TODO Am I expected to handle a film without its director added
+demo 2 = showFilms testDatabase
+demo 3  = print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDatabase -- TODO check print is fine here. Is putStrLn required?
+demo 4  = showFilms $ filterByRating testDatabase 0.75
+-- demo 5  = putStrLn average website rating for "Ridley Scott"
+--demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
+--demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
+--demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
+--demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
+
+demo 8 = print $ filterFilmsByYearOfRelease 2000 2006 testDatabase
+--
+-- filterFilmsByYearOfRelease lowerBound upperBound listOfFilms = filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
 -- Your user interface code goes
 
 data Film = Film
@@ -44,8 +57,11 @@ data Film = Film
 
 type User = String --TODO might remove this.Depends on readability of completed program
 
-addFilm :: Film -> [Film] -> [Film]
+addFilm :: Film -> [Film] -> [Film] --TODO Use constructor on the worksheet
 addFilm newFilm listOfFilms =  listOfFilms ++ [newFilm]
+
+addFilmProper :: String -> String -> Int -> [Film] -> [Film]
+addFilmProper title director yearOfRelease listOfFilms = listOfFilms ++ [(Film title director yearOfRelease [] [])]
 
 likeFilm :: User -> Film -> Film
 likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike --TODO check they havent already liked the film
@@ -53,15 +69,18 @@ likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) =
 dislikeFilm :: User -> Film -> Film
 dislikeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease usersWhoLike  (usersWhoDislike ++ [user]) --TODO check they havent already disliked the film
 
---TODO 
+--TODO
 --1.Make code on multiple lines not one
 --2.Format users who like and usersWhoDislike better
 printFilm :: Film -> IO ()
+-- printFilm :: Film ->  String
 printFilm film = putStrLn $ "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
-
 
 --TODO Type signiture
 getRatingOfFilm film = (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
+
+filterByRating :: [Film] -> Float -> [Film]
+filterByRating listOfFilms rating = filter (\film -> getRatingOfFilm film >= rating) listOfFilms
 
 showFilms :: [Film] -> IO ()
 showFilms listOfFilms = print listOfFilms
@@ -70,8 +89,11 @@ getFilmByDirector :: String -> [Film] -> [Film]
 getFilmByDirector directorName listOfFilms = filter (\film -> director film == directorName) listOfFilms
 
 outputFilmTitles :: [Film] -> [String]
-outputFilmTitles ((Film title _ _ _ _):xs) = [title] ++ outputFilmTitles xs --TODO Do this non recurrsively with a similar method to filterFilmByDirector?
-outputFilmTitles [] = []
+outputFilmTitles listOfFilms = map (\film -> title film) listOfFilms
+
+--Demo 8
+filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
+filterFilmsByYearOfRelease lowerBound upperBound listOfFilms = filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
 
 testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
 testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
