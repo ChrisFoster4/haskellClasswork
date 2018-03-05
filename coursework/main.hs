@@ -1,51 +1,13 @@
 -- MATHFUN
--- Template for the Haskell assignment program (replace this comment)
--- Add your student number
---
--- Types
---
--- Define Film type here
+-- Add your student number --TODO Replace this with student number. Don't want to commit student number to Github.
 
--- testDatabase :: [Film]
--- testDatabase = [ ... the 25 Film values ... ]
+-----------
+-- Types --
+-----------
 
---
---
---  Your functional code goes here
---
---
-
--- Demo function to test basic functionality (without persistence - i.e.
--- testDatabase doesn't change and nothing is saved/loaded to/from file).
-
---demo 1  = putStrLn all films after adding 2018 film "Sherlock Gnomes"
---demo 1  =  printFilm `map` testDatabase
---          directed by by "John Stevenson" to testDatabase
---demo 2  = putStrLn (filmsAsString testDatabase)
---demo 3  = putStrLn all films by "Ridley Scott"
---demo 4  = putStrLn all films with website rating >= 75%
---demo 5  = putStrLn average website rating for "Ridley Scott"
---demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
---demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
---demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
---demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
---demo 8  = films between 2000 and 2006 inclusive sorted by website rating
-
-demo :: Int -> IO ()
-demo 1 = showFilms $ addFilm (Film "Sherlock Gnomes" "Guy Ritchie" 2018 [] []) testDatabase --TODO Am I expected to handle a film without its director added
-demo 2 = showFilms testDatabase
-demo 3  = print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDatabase -- TODO check print is fine here. Is putStrLn required?
-demo 4  = showFilms $ filterByRating testDatabase 0.75
--- demo 5  = putStrLn average website rating for "Ridley Scott"
---demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
---demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
---demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
---demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
-
-demo 8 = print $ filterFilmsByYearOfRelease 2000 2006 testDatabase
---
--- filterFilmsByYearOfRelease lowerBound upperBound listOfFilms = filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
--- Your user interface code goes
+---------------------------
+-- Define Film type here --
+---------------------------
 
 data Film = Film
  { title :: String
@@ -57,47 +19,15 @@ data Film = Film
 
 type User = String --TODO might remove this.Depends on readability of completed program
 
-addFilm :: Film -> [Film] -> [Film] --TODO Use constructor on the worksheet
-addFilm newFilm listOfFilms =  listOfFilms ++ [newFilm]
+-----------------------
+-- Defining Database --
+-----------------------
 
-addFilmProper :: String -> String -> Int -> [Film] -> [Film]
-addFilmProper title director yearOfRelease listOfFilms = listOfFilms ++ [(Film title director yearOfRelease [] [])]
-
-likeFilm :: User -> Film -> Film
-likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike --TODO check they havent already liked the film
-
-dislikeFilm :: User -> Film -> Film
-dislikeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease usersWhoLike  (usersWhoDislike ++ [user]) --TODO check they havent already disliked the film
-
---TODO
---1.Make code on multiple lines not one
---2.Format users who like and usersWhoDislike better
-printFilm :: Film -> IO ()
--- printFilm :: Film ->  String
-printFilm film = putStrLn $ "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
-
---TODO Type signiture
-getRatingOfFilm film = (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
-
-filterByRating :: [Film] -> Float -> [Film]
-filterByRating listOfFilms rating = filter (\film -> getRatingOfFilm film >= rating) listOfFilms
-
-showFilms :: [Film] -> IO ()
-showFilms listOfFilms = print listOfFilms
-
-getFilmByDirector :: String -> [Film] -> [Film]
-getFilmByDirector directorName listOfFilms = filter (\film -> director film == directorName) listOfFilms
-
-outputFilmTitles :: [Film] -> [String]
-outputFilmTitles listOfFilms = map (\film -> title film) listOfFilms
-
---Demo 8
-filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
-filterFilmsByYearOfRelease lowerBound upperBound listOfFilms = filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
-
-testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
+avatar = Film "Avatar" "James Cameron" 2009 ["Dave", "Amy", "Liz"] ["Olga", "Tim", "Zoe", "Paula"]
+testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"] --TODO remove these 3 lines. Purely for testing purposes
 testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
-testFilms = [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt]
+testFilms = [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt] ++ [avatar]
+
 
 testDatabase = [
                  Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
@@ -127,8 +57,106 @@ testDatabase = [
                , Film "Hugo" "Martin Scorsese" 2011 ["Wally", "Sam"] ["Kate", "Bill", "Dave"]
                ]
 
-main :: IO()
+----------------------------------------------
+-- Fuctional code. NO "putStrLn" or "print" --
+----------------------------------------------
+
+outputFilmTitles :: [Film] -> String --This is functional code as it doesn't have any IO
+outputFilmTitles listOfFilms = foldr (++) "" $ map (\film -> title film ++ "\n") listOfFilms
+
+-- outputFilms :: [Film] -> String
+-- outputFilms listOfFilms = foldr (++) "" $ map (\)
+
+addFilm :: String -> String -> Int -> [Film] -> [Film]
+addFilm  title director yearOfRelease listOfFilms = listOfFilms ++ [Film title director yearOfRelease [] []]
+
+averageFilmRatings :: (Foldable t, Fractional a) => t a -> a --TODO da faq does this mean?
+averageFilmRatings listOfNums = sum listOfNums / fromIntegral(length listOfNums)
+
+-- addFilmProper :: String -> String -> Int -> [Film] -> [Film]
+-- addFilmProper title director yearOfRelease listOfFilms = listOfFilms ++ [(Film title director yearOfRelease [] [])]
+
+likeFilm :: User -> Film -> Film --Needs to take a
+likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike --TODO check they havent already liked the film
+
+addUserLikeToDatabase :: String -> String -> [Film] -> [Film]
+addUserLikeToDatabase user filmToLike listOfFilms = [(likeFilm user $ getFilmToLike filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
+
+addUserDislikeToDatabase :: String -> String -> [Film] -> [Film]
+addUserDislikeToDatabase user filmToLike listOfFilms = [(dislikeFilm user $ getFilmToLike filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
+
+getFilmToLike :: String -> [Film] -> Film --TODO returns "Exception: Prelude.head: empty list" if filmToLike is not in the listOfFilms
+getFilmToLike filmToLike listOfFilms = head $ filter (\film -> title film == filmToLike) listOfFilms --TODO using `head` here seems kinda hacky
+
+getOtherFilms :: String -> [Film] -> [Film]
+getOtherFilms filmToLike listOfFilms = filter (\film -> title film /= filmToLike) listOfFilms
+
+dislikeFilm :: User -> Film -> Film
+dislikeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease usersWhoLike  (usersWhoDislike ++ [user]) --TODO check they havent already disliked the film
+
+getRatingOfFilm :: Fractional a => Film -> a
+getRatingOfFilm film = (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
+
+filterByRating :: [Film] -> Float -> [Film]
+filterByRating listOfFilms rating = filter (\film -> getRatingOfFilm film >= rating) listOfFilms
+
+filterFilmByDirector :: String -> [Film] -> [Film]
+filterFilmByDirector directorName listOfFilms = filter (\film -> director film == directorName) listOfFilms
+
+filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
+filterFilmsByYearOfRelease lowerBound upperBound listOfFilms = filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
+
+getListOfFilmsUserHasRated :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
+getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
+
+
+----------------------------------------------------------------------------
+-- Demo function to test basic functionality (without persistence - i.e.  --
+-- testDatabase doesn't change and nothing is saved/loaded to/from file). --
+----------------------------------------------------------------------------
+
+--demo 1  = putStrLn all films after adding 2018 film "Sherlock Gnomes"
+--demo 1  =  printFilm `map` testDatabase
+--          directed by by "John Stevenson" to testDatabase
+--demo 2  = putStrLn (filmsAsString testDatabase)
+--demo 3  = putStrLn all films by "Ridley Scott"
+--demo 4  = putStrLn all films with website rating >= 75%
+--demo 5  = putStrLn average website rating for "Ridley Scott"
+--demo 6  = putStrLn titles of films rated by "Emma" (with likes/dislikes)
+--demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
+--demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
+--demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
+--demo 8  = films between 2000 and 2006 inclusive sorted by website rating
+
+demo :: Int -> IO ()
+demo 1 = showFilms $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase --TODO Am I expected to handle a film without its director added
+demo 2 = showFilms testDatabase
+demo 3  = print $ outputFilmTitles $ filterFilmByDirector "Ridley Scott" testDatabase -- TODO check print is fine here. Is putStrLn required?
+demo 4  = showFilms $ filterByRating testDatabase 0.75
+demo 5 = print $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase --TODO Break this down into more standalone functions
+demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
+--demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
+
+--demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
+demo 72 = putStrLn $ show $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase --TODO pretify output. Use showFilms function
+demo 8 = print $ filterFilmsByYearOfRelease 2000 2006 testDatabase
+
+-----------------------------------------
+-- Your user interface code goes  here --
+-----------------------------------------
+
+-- printFilm :: Film -> IO ()
+-- printFilm film = putStrLn $ "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
+printFilm :: Film -> String
+printFilm film = "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
+
+showFilms :: [Film] -> IO ()
+showFilms listOfFilms = print listOfFilms
+
+
 main = do
-    print $ getFilmByDirector "Ridley Scott" testDatabase
-    print $ outputFilmTitles $ getFilmByDirector "Ridley Scott" testDatabase
-    putStrLn "EOP"
+    putStrLn "Enter stuff"
+    response <- getLine
+    if response == ""
+            then return ()
+            else  main
