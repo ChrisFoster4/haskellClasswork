@@ -1,5 +1,9 @@
 -- MATHFUN
 -- Add your student number --TODO Replace this with student number. Don't want to commit student number to Github.
+import Data.List(sortBy)
+import Data.Ord(comparing)
+-- import System.IO(openFile,hGetContents,IOMode(ReadWriteMode))
+import Data.Char(isAlpha)
 
 -----------
 -- Types --
@@ -17,6 +21,9 @@ data Film = Film
  , usersWhoDislike :: [String]
  } deriving (Show,Read,Ord,Eq) --TODO check if all these 4 classes need to be derivived
 
+
+
+
 type User = String --TODO might remove this.Depends on readability of completed program
 
 -----------------------
@@ -26,7 +33,7 @@ type User = String --TODO might remove this.Depends on readability of completed 
 avatar = Film "Avatar" "James Cameron" 2009 ["Dave", "Amy", "Liz"] ["Olga", "Tim", "Zoe", "Paula"]
 testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"] --TODO remove these 3 lines. Purely for testing purposes
 testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
-testFilms = [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt] ++ [avatar]
+testFilms = [avatar] ++ [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt] ++ [avatar]
 
 
 testDatabase = [
@@ -129,18 +136,18 @@ getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLi
 --demo 8  = films between 2000 and 2006 inclusive sorted by website rating
 
 demo :: Int -> IO ()
-demo 1 = showFilms $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase --TODO Am I expected to handle a film without its director added
-demo 2 = showFilms testDatabase
-demo 3  = print $ outputFilmTitles $ filterFilmByDirector "Ridley Scott" testDatabase -- TODO check print is fine here. Is putStrLn required?
-demo 4  = showFilms $ filterByRating testDatabase 0.75
-demo 5 = print $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase --TODO Break this down into more standalone functions
+demo 1  = putStrLn $ outputDatabase $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase --TODO Am I expected to handle a film without its director added
+demo 2  = putStrLn $ outputDatabase testDatabase
+demo 3  = putStrLn $ outputDatabase $ filterFilmByDirector "Ridley Scott" testDatabase
+demo 5  = putStrLn $ show $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase --TODO Break this down into more standalone functions
+demo 4  = putStrLn $ outputDatabase $  filterByRating testDatabase 0.75
 demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
---demo 7  = putStrLn all films after "Emma" says she likes "Avatar"
+demo 7  = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Avatar" testDatabase
+demo 71 = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Titanic" testDatabase
+demo 72 = putStrLn $ outputDatabase $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase
+demo 8  = putStrLn $ outputDatabase $ reverse $ filterFilmsByYearOfRelease 2000 2006 $ sortBy (comparing getRatingOfFilm ) testDatabase
 
---demo 71 = putStrLn all films after "Emma" says she likes "Titanic"
-demo 72 = putStrLn $ show $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase --TODO pretify output. Use showFilms function
-demo 8 = print $ filterFilmsByYearOfRelease 2000 2006 testDatabase
-
+-- demo 8 = print $ filterFilmsByYearOfRelease 2000 2006 testDatabase --TODO sort by website rating reverse $ sortBy (comparing getRatingOfFilm ) testDatabase
 -----------------------------------------
 -- Your user interface code goes  here --
 -----------------------------------------
@@ -154,9 +161,61 @@ showFilms :: [Film] -> IO ()
 showFilms listOfFilms = print listOfFilms
 
 
+optionMenu :: String
+optionMenu = "Select one of the options below.\n" ++ "1.Add a film\n" ++ "2.List all films in the database\n" ++ "3.List films by a director\n" ++ "4.\n" ++ "5.\n" ++ "6.\n" ++ "7.\n" ++ "8.\n" ++ "Type exit to quit the system"
+
+selectionMade :: String -> IO()
+selectionMade "1" = putStrLn "\nfoo"
+selectionMade "2" = putStrLn "\nfoo"
+selectionMade "3" = print $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase --TODO Am I expected to handle a film without its director added
+selectionMade "4" = putStrLn "\nfoo"
+selectionMade "5" = putStrLn "\nfoo"
+selectionMade "6" = putStrLn "\nfoo"
+selectionMade "7" = putStrLn "\nfoo"
+selectionMade "8" = putStrLn "\nfoo"
+selectionMade "exit" = return ()
+selectionMade n = putStrLn $ "\nInvalid option" ++ n ++ "\n"
+
+outputDatabase :: [Film] -> String
+outputDatabase database = foldr (++) "" $ map printFilm database
+
+
+databaseToFilm :: IO [Film]
+databaseToFilm = do
+    filmsAsString <- readFile "films.txt"
+    return (read filmsAsString :: [Film])
+
+checkNameInput :: String -> Bool
+checkNameInput name
+            | (name /= filter Data.Char.isAlpha name) = True
+            | name == "" = True
+            | otherwise = False
+
+getUserName :: [Film] -> IO ()
+getUserName database = do
+    putStrLn "Enter your name"
+    name <- getLine
+    if checkNameInput name
+        then getUserName database --TODO find a way to tell the user the entered a bad name here
+        else ioLoop database name
+
+
+ioLoop :: [Film] -> String -> IO()
+ioLoop database name = do
+        putStrLn optionMenu
+        response <- getLine
+        if response == "exit"
+            then writeFile "films.txt" $ show database
+            else ioLoop database name
+
+
 main = do
-    putStrLn "Enter stuff"
-    response <- getLine
-    if response == ""
-            then return ()
-            else  main
+    database <- databaseToFilm
+    putStrLn "Database loaded from films.txt"
+    getUserName database --This won't run unless name is used somewhere due to lazy evaluation
+    -- name
+
+    -- ioLoop contents name
+
+
+    putStrLn "EOP"
