@@ -2,9 +2,13 @@
 -- Add your student number --TODO Replace this with student number. Don't want to commit student number to Github.
 import Data.List(sortBy)
 import Data.Ord(comparing)
+-- import System.IO
+-- import Data.Char
 -- import System.IO(openFile,hGetContents,IOMode(ReadWriteMode))
 import Data.Char(isAlpha)
+-- import Control.Parallel.Strategies (rnf)
 
+-- import qualified Data.ByteString
 -----------
 -- Types --
 -----------
@@ -68,16 +72,13 @@ testDatabase = [
 -- Fuctional code. NO "putStrLn" or "print" --
 ----------------------------------------------
 
-outputFilmTitles :: [Film] -> String --This is functional code as it doesn't have any IO
+outputFilmTitles :: [Film] -> String
 outputFilmTitles listOfFilms = foldr (++) "" $ map (\film -> title film ++ "\n") listOfFilms
-
--- outputFilms :: [Film] -> String
--- outputFilms listOfFilms = foldr (++) "" $ map (\)
 
 addFilm :: String -> String -> Int -> [Film] -> [Film]
 addFilm  title director yearOfRelease listOfFilms = listOfFilms ++ [Film title director yearOfRelease [] []]
 
-averageFilmRatings :: (Foldable t, Fractional a) => t a -> a --TODO da faq does this mean?
+averageFilmRatings :: (Foldable t, Fractional a) => t a -> a
 averageFilmRatings listOfNums = sum listOfNums / fromIntegral(length listOfNums)
 
 -- addFilmProper :: String -> String -> Int -> [Film] -> [Film]
@@ -135,11 +136,11 @@ getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLi
 --demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
 --demo 8  = films between 2000 and 2006 inclusive sorted by website rating
 
-demo :: Int -> IO ()
-demo 1  = putStrLn $ outputDatabase $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase --TODO Am I expected to handle a film without its director added
+demo :: Int -> IO () --TODO. Break down these into their own functions
+demo 1  = putStrLn $ outputDatabase $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase
 demo 2  = putStrLn $ outputDatabase testDatabase
 demo 3  = putStrLn $ outputDatabase $ filterFilmByDirector "Ridley Scott" testDatabase
-demo 5  = putStrLn $ show $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase --TODO Break this down into more standalone functions
+demo 5  = putStrLn $ show $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase
 demo 4  = putStrLn $ outputDatabase $  filterByRating testDatabase 0.75
 demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
 demo 7  = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Avatar" testDatabase
@@ -147,7 +148,6 @@ demo 71 = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Titanic" tes
 demo 72 = putStrLn $ outputDatabase $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase
 demo 8  = putStrLn $ outputDatabase $ reverse $ filterFilmsByYearOfRelease 2000 2006 $ sortBy (comparing getRatingOfFilm ) testDatabase
 
--- demo 8 = print $ filterFilmsByYearOfRelease 2000 2006 testDatabase --TODO sort by website rating reverse $ sortBy (comparing getRatingOfFilm ) testDatabase
 -----------------------------------------
 -- Your user interface code goes  here --
 -----------------------------------------
@@ -180,10 +180,7 @@ outputDatabase :: [Film] -> String
 outputDatabase database = foldr (++) "" $ map printFilm database
 
 
-databaseToFilm :: IO [Film]
-databaseToFilm = do
-    filmsAsString <- readFile "films.txt"
-    return (read filmsAsString :: [Film])
+
 
 checkNameInput :: String -> Bool
 checkNameInput name
@@ -199,7 +196,6 @@ getUserName database = do
         then getUserName database --TODO find a way to tell the user the entered a bad name here
         else ioLoop database name
 
-
 ioLoop :: [Film] -> String -> IO()
 ioLoop database name = do
         putStrLn optionMenu
@@ -208,14 +204,14 @@ ioLoop database name = do
             then writeFile "films.txt" $ show database
             else ioLoop database name
 
+databaseToFilm :: IO [Film]
+databaseToFilm = do
+    filmsAsString <- readFile "films.txt"
+    return (read filmsAsString :: [Film])
 
 main = do
     database <- databaseToFilm
+    putStrLn $ outputDatabase database --This line is needed to force haskell to read the entire file. Otherwise it is loaded lazzily and cannot be written to.
     putStrLn "Database loaded from films.txt"
-    getUserName database --This won't run unless name is used somewhere due to lazy evaluation
-    -- name
-
-    -- ioLoop contents name
-
-
-    putStrLn "EOP"
+    getUserName database --This function also initiates the main IO loop.
+    putStrLn "End of program."
