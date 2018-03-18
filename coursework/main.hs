@@ -1,14 +1,16 @@
--- MATHFUN
--- Add your student number --TODO Replace this with student number. Don't want to commit student number to Github.
-import Data.List(sortBy)
-import Data.Ord(comparing)
--- import System.IO
--- import Data.Char
--- import System.IO(openFile,hGetContents,IOMode(ReadWriteMode))
-import Data.Char(isAlpha)
--- import Control.Parallel.Strategies (rnf)
+-------------
+-- MATHFUN --
+-- 809059  --
+-------------
 
--- import qualified Data.ByteString
+
+-------------
+-- Imports --
+-------------
+import           Data.Char (isAlpha)
+import           Data.List (sortBy)
+import           Data.Ord  (comparing)
+
 -----------
 -- Types --
 -----------
@@ -18,10 +20,10 @@ import Data.Char(isAlpha)
 ---------------------------
 
 data Film = Film
- { title :: String
- , director :: String
- , yearOfRelease :: Int
- , usersWhoLike :: [String]
+ { title           :: String
+ , director        :: String
+ , yearOfRelease   :: Int
+ , usersWhoLike    :: [String]
  , usersWhoDislike :: [String]
  } deriving (Show,Read,Ord,Eq) --TODO check if all these 4 classes need to be derivived
 
@@ -79,9 +81,6 @@ addFilm  title director yearOfRelease listOfFilms = listOfFilms ++ [Film title d
 averageFilmRatings :: (Foldable t, Fractional a) => t a -> a
 averageFilmRatings listOfNums = sum listOfNums / fromIntegral(length listOfNums)
 
--- addFilmProper :: String -> String -> Int -> [Film] -> [Film]
--- addFilmProper title director yearOfRelease listOfFilms = listOfFilms ++ [(Film title director yearOfRelease [] [])]
-
 likeFilm :: User -> Film -> Film --Needs to take a
 likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike --TODO check they havent already liked the film
 
@@ -101,7 +100,8 @@ dislikeFilm :: User -> Film -> Film
 dislikeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease usersWhoLike  (usersWhoDislike ++ [user]) --TODO check they havent already disliked the film
 
 getRatingOfFilm :: Fractional a => Film -> a
-getRatingOfFilm film = (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
+getRatingOfFilm film = 100 * (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
+
 
 filterByRating :: [Film] -> Float -> [Film]
 filterByRating listOfFilms rating = filter (\film -> getRatingOfFilm film >= rating) listOfFilms
@@ -115,8 +115,27 @@ filterFilmsByYearOfRelease lowerBound upperBound listOfFilms =  reverse $ filter
 getListOfFilmsUserHasRated :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
 getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
 
+getListOfFilmsUserLikes :: String -> [Film] -> [Film]
+getListOfFilmsUserLikes user films = filter (\film -> (elem user $ usersWhoLike film)) films
+
+getListOfFilmsUserDislikes :: String -> [Film] -> [Film]
+getListOfFilmsUserDislikes user films = filter (\film -> (elem user $ usersWhoDislike film)) films
+
 getUsersWhoHaveRatedAFilm :: String -> [Film] -> [String] --This function is utilised in the IO section of the program
 getUsersWhoHaveRatedAFilm filmToCheck database = (\film -> usersWhoLike film ++ usersWhoDislike film) $ getFilmFromDatabase filmToCheck database
+
+userHasRatedStringContructor :: String -> [Film] -> [Film] -> String
+userHasRatedStringContructor user likedFilms dislikedFilms = concat $ map (\film -> (user ++ " likes " ++ (title film) ++ "\n")) likedFilms ++ map (\film -> (user ++ " dislikes " ++ (title film) ++ "\n")) dislikedFilms
+
+-- foo :: String -> Film -> String
+-- foo user film
+--             | elem user $ usersWhoLike film = (user ++ " likes " ++ (title film))
+--             | elem user $ usersWhoDislike film = (user ++ " dislikes " ++ (title film))
+--             | otherwise = ""
+--
+-- purStrln $ concat $ ["Emmas like dick","asdaisdhu"]
+-- putStrLn $ concat $ map (foo "Emma") testDatabase
+
 ----------------------------------------------------------------------------
 -- Demo function to test basic functionality (without persistence - i.e.  --
 -- testDatabase doesn't change and nothing is saved/loaded to/from file). --
@@ -141,7 +160,8 @@ demo 2  = putStrLn $ outputDatabase testDatabase
 demo 3  = putStrLn $ outputDatabase $ filterFilmByDirector "Ridley Scott" testDatabase
 demo 4  = putStrLn $ outputDatabase $ filterByRating testDatabase 0.75
 demo 5  = putStrLn $ show $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase
-demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
+-- demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
+demo 6  = putStrLn $ userHasRatedStringContructor "Emma" (getListOfFilmsUserLikes "Emma" testDatabase) (getListOfFilmsUserDislikes "Emma" testDatabase)
 demo 7  = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Avatar" testDatabase
 demo 71 = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Titanic" testDatabase
 demo 72 = putStrLn $ outputDatabase $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase
@@ -179,9 +199,6 @@ selectionMade "8" database name = filmsBetweenYearIO database name    --Give all
 selectionMade "exit" database _ = writeAndExit database
 selectionMade n database name   = errorMadeInOptionMenu n database name
 
-isNumberNaN :: Float -> Bool
-isNumberNaN a = a /= a
-
 filmsAboveRatingIO :: [Film] -> String -> IO()
 filmsAboveRatingIO database name = do
 
@@ -212,7 +229,7 @@ ratingOfDirectorIO database name = do
         let rating = averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector director database
         if (isNumberNaN rating)
             then putStrLn "Sorry but there are not rating for any films by that director"
-            else putStrLn $ "The average rating for " ++ director ++"\'s films is: " ++  take 5 (show $ rating)
+            else putStrLn $ "The average rating for " ++ director ++"\'s films is: " ++  show(round rating)
         optionMenu database name
 
 
@@ -228,16 +245,25 @@ filmsBetweenYearIO database name = do
 
 outputDatabaseIO :: [Film] -> String -> IO()
 outputDatabaseIO database name = do
-    putStrLn "Start of the database" --TODO make check if the database is empty
-    putStrLn $ outputDatabase database
-    putStrLn "End of the database"
+    if length database == 0 --Can be triggered by having "[]" in films.txt
+        then putStrLn "The database is empty!"
+        else do
+            putStrLn "Start of the database"
+            putStrLn $ outputDatabase database
+            putStrLn "End of the database"
     optionMenu database name
 
 filmsUserHasRatedIO :: [Film] -> String -> IO()
 filmsUserHasRatedIO database name = do
-    putStrLn "Films you have rated are:" --TODO check if they have rated any films and react accordingly
-    putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated name database
-    optionMenu database name
+    let ratedFilms = getListOfFilmsUserHasRated name database
+    if  length ratedFilms == 0
+        then do
+             putStrLn "You haven't rated any films"
+             optionMenu database name
+        else do
+             putStrLn "Films you have rated are:" --TODO check if they have rated any films and react accordingly
+             putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated name database
+             optionMenu database name
 
 errorMadeInOptionMenu :: String -> [Film] -> String -> IO ()
 errorMadeInOptionMenu input database name = do
@@ -267,22 +293,44 @@ likeOrDislikeIO database name = do --TODO check if the user has already liked th
         putStrLn "Returning you to main menu" --TODO ask them if they want to rate a different film
         optionMenu database name
 
-addFilmIO :: [Film] -> String -> IO() --TODO loads of error checking here.
+addFilmIO :: [Film] -> String -> IO()
 addFilmIO database name = do
     putStrLn "Enter the film name"
     title <- getLine
-    putStrLn "Enter year of release"
-    yearOfRelease <- getLine
-    putStrLn "Enter directory name"
-    director <- getLine
-    let newDatabase = addFilm title director (read yearOfRelease :: Int) database
-    optionMenu newDatabase name
+    if (title == filter Data.Char.isAlpha title)
+        then do
+            putStrLn "Enter year of release"
+            yearOfRelease <- getLine
+            if ((read yearOfRelease :: Int) > 2018 || (read yearOfRelease :: Int) < 1900)
+                then do
+                    putStrLn "Invalid year of release"
+                    optionMenu database name
+                else do
+                        putStrLn "Enter director name"
+                        director <- getLine
+                        if (director == filter Data.Char.isAlpha director)
+                            then do
+                                let newDatabase = addFilm title director (read yearOfRelease :: Int) database
+                                putStrLn $ "New film :" ++ title ++ " added to database"
+                                optionMenu newDatabase name
+                            else do
+                                putStrLn "Invalid director input"
+                                optionMenu database name
+        else do
+             putStrLn "Invalid title entered"
+             optionMenu database name
 
-printFilm :: Film -> String
-printFilm film = "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
+
+printFilm :: Film -> String --If statement to avoid "Rating : NaN" being printed.
+printFilm film = "\nTitle: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nRating: " ++ show(if isNumberNaN (getRatingOfFilm film) then 0 else getRatingOfFilm film)
+
+
+isNumberNaN :: Float -> Bool --Can't do if num == NaN by IEEE convention
+isNumberNaN a = a /= a
+
 
 outputDatabase :: [Film] -> String
-outputDatabase database = foldr (++) "" $ map printFilm database
+outputDatabase database = concat $ [printFilm film | film <- database]
 
 checkNameInput :: String -> Bool
 checkNameInput name
