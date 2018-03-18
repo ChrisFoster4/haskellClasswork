@@ -26,8 +26,6 @@ data Film = Film
  } deriving (Show,Read,Ord,Eq) --TODO check if all these 4 classes need to be derivived
 
 
-
-
 type User = String --TODO might remove this.Depends on readability of completed program
 
 -----------------------
@@ -112,11 +110,10 @@ filterFilmByDirector :: String -> [Film] -> [Film]
 filterFilmByDirector directorName listOfFilms = filter (\film -> director film == directorName) listOfFilms
 
 filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
-filterFilmsByYearOfRelease lowerBound upperBound listOfFilms = filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
+filterFilmsByYearOfRelease lowerBound upperBound listOfFilms =  reverse $ filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
 
 getListOfFilmsUserHasRated :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
 getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
-
 
 ----------------------------------------------------------------------------
 -- Demo function to test basic functionality (without persistence - i.e.  --
@@ -146,7 +143,7 @@ demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDa
 demo 7  = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Avatar" testDatabase
 demo 71 = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Titanic" testDatabase
 demo 72 = putStrLn $ outputDatabase $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase
-demo 8  = putStrLn $ outputDatabase $ reverse $ filterFilmsByYearOfRelease 2000 2006 $ sortBy (comparing getRatingOfFilm ) testDatabase
+demo 8  = putStrLn $ outputDatabase $ filterFilmsByYearOfRelease 2000 2006 $ sortBy (comparing getRatingOfFilm ) testDatabase
 
 -----------------------------------------
 -- Your user interface code goes  here --
@@ -154,33 +151,60 @@ demo 8  = putStrLn $ outputDatabase $ reverse $ filterFilmsByYearOfRelease 2000 
 
 -- printFilm :: Film -> IO ()
 -- printFilm film = putStrLn $ "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
+
+optionMenu :: [Film] -> String -> IO()
+optionMenu database name = do
+    putStrLn $ "Select one of the options below.\n" ++ "1.Add a film\n" ++ "2.List all films in the database\n" ++ "3.List films by a director\n" ++ "4.\n" ++ "5.\n" ++ "6.\n" ++ "7.\n" ++ "8.\n" ++ "Type exit to quit the system"
+    input <- getLine
+    -- if
+    selectionMade input database name
+
+selectionMade :: String  -> [Film] -> String -> IO()
+selectionMade "1" database name = addFilmIO database name
+selectionMade "2" database name = putStrLn "\nfoo"
+selectionMade "3" database name = putStrLn "\nfoo"
+selectionMade "4" database name = putStrLn "\nfoo"
+selectionMade "5" database name = putStrLn "\nfoo"
+selectionMade "6" database name = putStrLn "\nfoo"
+selectionMade "7" database name = likeOrDislikeIO database name --Like or dislike a film
+selectionMade "8" database name = putStrLn "\nfoo"
+selectionMade "exit" database _ = writeAndExit database
+selectionMade n database name =  errorMadeInOptionMenu n database name
+
+errorMadeInOptionMenu input database name = do
+    putStrLn "Invalid input given. Returning you to main menu."
+    optionMenu database name
+
+writeAndExit database = do
+     putStrLn "Write and exit"
+     writeFile "films.txt" $ show database
+
+likeOrDislikeIO :: [Film] -> String -> IO ()
+likeOrDislikeIO database name = do --TODO check if the user has already liked the film and other input checking
+    putStrLn "Would film would you like to rate"
+    title <- getLine
+    putStrLn "Would you like to like or dislike the film"
+    action <- getLine
+    let newDatabase = addUserLikeToDatabase name title database
+    optionMenu newDatabase name
+
+addFilmIO :: [Film] -> String -> IO() --TODO loads of error checking here.
+addFilmIO database name = do
+    putStrLn "Enter the film name"
+    title <- getLine
+    putStrLn "Enter year of release"
+    yearOfRelease <- getLine
+    putStrLn "Enter directory name"
+    director <- getLine
+    let newDatabase = addFilm title director (read yearOfRelease :: Int) database
+    optionMenu newDatabase name
+
+
 printFilm :: Film -> String
 printFilm film = "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
 
-showFilms :: [Film] -> IO ()
-showFilms listOfFilms = print listOfFilms
-
-
-optionMenu :: String
-optionMenu = "Select one of the options below.\n" ++ "1.Add a film\n" ++ "2.List all films in the database\n" ++ "3.List films by a director\n" ++ "4.\n" ++ "5.\n" ++ "6.\n" ++ "7.\n" ++ "8.\n" ++ "Type exit to quit the system"
-
-selectionMade :: String -> IO()
-selectionMade "1" = putStrLn "\nfoo"
-selectionMade "2" = putStrLn "\nfoo"
-selectionMade "3" = print $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase --TODO Am I expected to handle a film without its director added
-selectionMade "4" = putStrLn "\nfoo"
-selectionMade "5" = putStrLn "\nfoo"
-selectionMade "6" = putStrLn "\nfoo"
-selectionMade "7" = putStrLn "\nfoo"
-selectionMade "8" = putStrLn "\nfoo"
-selectionMade "exit" = return ()
-selectionMade n = putStrLn $ "\nInvalid option" ++ n ++ "\n"
-
 outputDatabase :: [Film] -> String
 outputDatabase database = foldr (++) "" $ map printFilm database
-
-
-
 
 checkNameInput :: String -> Bool
 checkNameInput name
@@ -194,15 +218,7 @@ getUserName database = do
     name <- getLine
     if checkNameInput name
         then getUserName database --TODO find a way to tell the user the entered a bad name here
-        else ioLoop database name
-
-ioLoop :: [Film] -> String -> IO()
-ioLoop database name = do
-        putStrLn optionMenu
-        response <- getLine
-        if response == "exit"
-            then writeFile "films.txt" $ show database
-            else ioLoop database name
+        else optionMenu database name
 
 databaseToFilm :: IO [Film]
 databaseToFilm = do
