@@ -86,13 +86,13 @@ likeFilm :: User -> Film -> Film --Needs to take a
 likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike --TODO check they havent already liked the film
 
 addUserLikeToDatabase :: String -> String -> [Film] -> [Film]
-addUserLikeToDatabase user filmToLike listOfFilms = [(likeFilm user $ getFilmToLike filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
+addUserLikeToDatabase user filmToLike listOfFilms = [(likeFilm user $ getFilmFromDatabase filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
 
 addUserDislikeToDatabase :: String -> String -> [Film] -> [Film]
-addUserDislikeToDatabase user filmToLike listOfFilms = [(dislikeFilm user $ getFilmToLike filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
+addUserDislikeToDatabase user filmToLike listOfFilms = [(dislikeFilm user $ getFilmFromDatabase filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
 
-getFilmToLike :: String -> [Film] -> Film --TODO returns "Exception: Prelude.head: empty list" if filmToLike is not in the listOfFilms
-getFilmToLike filmToLike listOfFilms = head $ filter (\film -> title film == filmToLike) listOfFilms --TODO using `head` here seems kinda hacky
+getFilmFromDatabase :: String -> [Film] -> Film --TODO returns "Exception: Prelude.head: empty list" if filmToLike is not in the listOfFilms
+getFilmFromDatabase filmToGet listOfFilms = head $ filter (\film -> title film == filmToGet) listOfFilms --TODO using `head` here seems kinda hacky
 
 getOtherFilms :: String -> [Film] -> [Film]
 getOtherFilms filmToLike listOfFilms = filter (\film -> title film /= filmToLike) listOfFilms
@@ -115,6 +115,8 @@ filterFilmsByYearOfRelease lowerBound upperBound listOfFilms =  reverse $ filter
 getListOfFilmsUserHasRated :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
 getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
 
+getUsersWhoHaveRatedAFilm :: String -> [Film] -> [String] --This function is utilised in the IO section of the program
+getUsersWhoHaveRatedAFilm filmToCheck database = (\film -> usersWhoLike film ++ usersWhoDislike film) $ getFilmFromDatabase filmToCheck database
 ----------------------------------------------------------------------------
 -- Demo function to test basic functionality (without persistence - i.e.  --
 -- testDatabase doesn't change and nothing is saved/loaded to/from file). --
@@ -137,8 +139,8 @@ demo :: Int -> IO () --TODO. Break down these into their own functions
 demo 1  = putStrLn $ outputDatabase $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase
 demo 2  = putStrLn $ outputDatabase testDatabase
 demo 3  = putStrLn $ outputDatabase $ filterFilmByDirector "Ridley Scott" testDatabase
+demo 4  = putStrLn $ outputDatabase $ filterByRating testDatabase 0.75
 demo 5  = putStrLn $ show $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase
-demo 4  = putStrLn $ outputDatabase $  filterByRating testDatabase 0.75
 demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
 demo 7  = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Avatar" testDatabase
 demo 71 = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Titanic" testDatabase
@@ -149,34 +151,102 @@ demo 8  = putStrLn $ outputDatabase $ filterFilmsByYearOfRelease 2000 2006 $ sor
 -- Your user interface code goes  here --
 -----------------------------------------
 
--- printFilm :: Film -> IO ()
--- printFilm film = putStrLn $ "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
-
+--This function can be written using one string and \n but it looks horrible
 optionMenu :: [Film] -> String -> IO()
 optionMenu database name = do
-    putStrLn $ "Select one of the options below.\n" ++ "1.Add a film\n" ++ "2.List all films in the database\n" ++ "3.List films by a director\n" ++ "4.\n" ++ "5.\n" ++ "6.\n" ++ "7.\n" ++ "8.\n" ++ "Type exit to quit the system"
+    putStrLn "Select one of the options below."
+    putStrLn "1.Add a film"
+    putStrLn "2.List all films in the database"
+    putStrLn "3.List all films by a director"
+    putStrLn "4.Give all films above a certain rating"
+    putStrLn "5.Give average rating for a director"
+    putStrLn "6.Give titles of all films you have rated"
+    putStrLn "7.Like or dislike a film"
+    putStrLn "8.Give all films released between two years"
+    putStrLn "Type \"exit\" to save and quit the system."
     input <- getLine
-    -- if
     selectionMade input database name
 
 selectionMade :: String  -> [Film] -> String -> IO()
-selectionMade "1" database name = addFilmIO database name
-selectionMade "2" database name = putStrLn "\nfoo"
-selectionMade "3" database name = putStrLn "\nfoo"
-selectionMade "4" database name = putStrLn "\nfoo"
-selectionMade "5" database name = putStrLn "\nfoo"
-selectionMade "6" database name = putStrLn "\nfoo"
-selectionMade "7" database name = likeOrDislikeIO database name --Like or dislike a film
-selectionMade "8" database name = putStrLn "\nfoo"
+selectionMade "1" database name = addFilmIO database name             --Add a new film to the database
+selectionMade "2" database name = outputDatabaseIO database name      --Give all films in the database
+selectionMade "3" database name = getFilmsByDirectorIO database name  --Give all films by a given director
+selectionMade "4" database name = filmsAboveRatingIO database name    --Give all films above a certain rating
+selectionMade "5" database name = ratingOfDirectorIO database name    --Give average website rating for a certain director
+selectionMade "6" database name = filmsUserHasRatedIO database name   --Give titles of all films a user has rated
+selectionMade "7" database name = likeOrDislikeIO database name       --Allow user to like or dislike a film
+selectionMade "8" database name = filmsBetweenYearIO database name    --Give all films between two specified years
 selectionMade "exit" database _ = writeAndExit database
-selectionMade n database name =  errorMadeInOptionMenu n database name
+selectionMade n database name   = errorMadeInOptionMenu n database name
 
-errorMadeInOptionMenu input database name = do
-    putStrLn "Invalid input given. Returning you to main menu."
+isNumberNaN :: Float -> Bool
+isNumberNaN a = a /= a
+
+filmsAboveRatingIO :: [Film] -> String -> IO()
+filmsAboveRatingIO database name = do
+
+-- demo 4  = putStrLn $ outputDatabase $ filterByRating testDatabase 0.75
+    putStrLn "What rating do you want films above?" --TODO check rating is between 0 to 100
+    threshold <- getLine
+    putStrLn $ outputFilmTitles $ filterByRating database (read threshold :: Float)
     optionMenu database name
 
+
+
+getFilmsByDirectorIO :: [Film] -> String -> IO()
+getFilmsByDirectorIO database name = do
+        putStrLn "Enter director who's films you want."
+        director <- getLine
+        let films = filterFilmByDirector director database
+        if (length films == 0)
+            then putStrLn $ "\n The director: " ++ director ++ " hasn't directed any films within our database."
+            else do
+                 putStrLn $ "\n" ++ director ++ "has directed these films:"
+                 putStrLn $ outputFilmTitles $ films
+        optionMenu database name
+
+ratingOfDirectorIO :: [Film] -> String -> IO ()
+ratingOfDirectorIO database name = do
+        putStrLn "Enter the director name to get rating for"
+        director <- getLine
+        let rating = averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector director database
+        if (isNumberNaN rating)
+            then putStrLn "Sorry but there are not rating for any films by that director"
+            else putStrLn $ "The average rating for " ++ director ++"\'s films is: " ++  take 5 (show $ rating)
+        optionMenu database name
+
+
+filmsBetweenYearIO :: [Film] -> String -> IO()
+filmsBetweenYearIO database name = do
+    putStrLn "Enter the year you want films after"
+    lowerBound <- getLine
+    putStrLn "Enter the year you want films before"
+    upperBound <- getLine
+    putStrLn $ "These are the films between " ++ lowerBound ++ " and " ++ upperBound
+    putStrLn $ outputDatabase $ filterFilmsByYearOfRelease (read lowerBound :: Int) (read upperBound :: Int) database
+    optionMenu database name
+
+outputDatabaseIO :: [Film] -> String -> IO()
+outputDatabaseIO database name = do
+    putStrLn "Start of the database" --TODO make check if the database is empty
+    putStrLn $ outputDatabase database
+    putStrLn "End of the database"
+    optionMenu database name
+
+filmsUserHasRatedIO :: [Film] -> String -> IO()
+filmsUserHasRatedIO database name = do
+    putStrLn "Films you have rated are:" --TODO check if they have rated any films and react accordingly
+    putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated name database
+    optionMenu database name
+
+errorMadeInOptionMenu :: String -> [Film] -> String -> IO ()
+errorMadeInOptionMenu input database name = do
+    putStrLn "Invalid input given. Returning you to main menu." --TODO print out what they entered (n)
+    optionMenu database name
+
+writeAndExit :: [Film] -> IO ()
 writeAndExit database = do
-     putStrLn "Write and exit"
+     putStrLn "Saving database and exiting."
      writeFile "films.txt" $ show database
 
 likeOrDislikeIO :: [Film] -> String -> IO ()
@@ -185,8 +255,17 @@ likeOrDislikeIO database name = do --TODO check if the user has already liked th
     title <- getLine
     putStrLn "Would you like to like or dislike the film"
     action <- getLine
-    let newDatabase = addUserLikeToDatabase name title database
-    optionMenu newDatabase name
+    if (not $ elem name $ getUsersWhoHaveRatedAFilm title database)
+        then do
+            let newDatabase = if action == "like"
+                then addUserLikeToDatabase name title database
+                else addUserDislikeToDatabase name title database
+            putStrLn "Rating added to film"
+            optionMenu newDatabase name
+    else do
+        putStrLn "You have already rated that film."
+        putStrLn "Returning you to main menu" --TODO ask them if they want to rate a different film
+        optionMenu database name
 
 addFilmIO :: [Film] -> String -> IO() --TODO loads of error checking here.
 addFilmIO database name = do
@@ -198,7 +277,6 @@ addFilmIO database name = do
     director <- getLine
     let newDatabase = addFilm title director (read yearOfRelease :: Int) database
     optionMenu newDatabase name
-
 
 printFilm :: Film -> String
 printFilm film = "Title: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nUsers who like: " ++ show(usersWhoLike film)  ++ "\nUsers who dislike: " ++ show (usersWhoDislike film) ++ "\n"
