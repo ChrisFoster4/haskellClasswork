@@ -7,9 +7,9 @@
 -------------
 -- Imports --
 -------------
-import           Data.Char (isAlpha,isNumber)
-import           Data.List (sortBy)
-import           Data.Ord  (comparing)
+import Data.Char(isAlpha,isNumber)
+import Data.List(sortBy)
+import Data.Ord(comparing)
 
 -----------
 -- Types --
@@ -27,9 +27,6 @@ data Film = Film
  , usersWhoDislike :: [String]
  } deriving (Show,Read,Eq,Ord)
 
-
-type User = String --TODO might remove this.Depends on readability of completed program
-
 -----------------------
 -- Defining Database --
 -----------------------
@@ -40,6 +37,7 @@ testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "
 testFilms = [avatar] ++ [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt] ++ [avatar]
 
 
+testDatabase :: [Film]
 testDatabase = [
                  Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
                , Film "The Fly" "David Cronenberg" 1986 ["Garry", "Dave", "Zoe"] ["Kevin", "Emma", "Heidi", "Jo", "Kate"]
@@ -59,12 +57,12 @@ testDatabase = [
                , Film "Gladiator" "Ridley Scott" 2000 ["Olga", "Neal", "Kate", "Garry"] ["Heidi", "Bill", "Sam", "Zoe"]
                , Film "The Green Mile" "Frank Darabont" 1999 ["Kevin", "Tim", "Emma", "Heidi"] ["Kate", "Jenny", "Zoe"]
                , Film "True Lies" "James Cameron" 1994 ["Sam", "Dave"] ["Emma", "Olga", "Jenny", "Zoe"]
-               , Film "Super 8" "J J Abrams" 2011 ["Kevin", "Tim", "Emma", "Olga", "Heidi"] ["Emma", "Dave", "Jenny", "Zoe"]
+               , Film "Super 8" "J J Abrams" 2011 ["Kevin", "Tim", "Emma", "Olga", "Heidi"] ["Wally", "Dave", "Jenny", "Zoe"]
                , Film "Minority Report" "Steven Spielberg" 2002 ["Kevin", "Kate", "Tim", "Emma", "Jenny", "Zoe"] ["Olga", "Heidi"]
                , Film "War Horse" "Steven Spielberg" 2011 ["Garry", "Bill", "Olga", "Jo", "Wally", "Emma", "Tim", "Kate", "Zoe"] ["Heidi", "Jenny", "Sam"]
                , Film "Silence" "Martin Scorsese" 2016 ["Wally", "Emma", "Tim", "Heidi", "Bill", "Jo"] ["Dave", "Olga"]
                , Film "The Terminal" "Steven Spielberg" 2004 ["Kate", "Dave", "Jo", "Wally", "Emma"] ["Heidi"]
-               , Film "Star Wars: The Force Awakens" "J J Abrams" 2015 ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz"] ["Olga", "Jo", "Wally"]
+               , Film "Star Wars: The Force Awakens" "J J Abrams" 2015 ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz"] ["Olga", "Jo", "Neal"]
                , Film "Hugo" "Martin Scorsese" 2011 ["Wally", "Sam"] ["Kate", "Bill", "Dave"]
                ]
 
@@ -73,68 +71,59 @@ testDatabase = [
 ----------------------------------------------
 
 outputFilmTitles :: [Film] -> String
-outputFilmTitles listOfFilms = foldr (++) "" $ map (\film -> title film ++ "\n") listOfFilms
+outputFilmTitles films = foldr (++) "" $ map (\film -> title film ++ "\n") films
 
 addFilm :: String -> String -> Int -> [Film] -> [Film]
-addFilm  title director yearOfRelease listOfFilms = listOfFilms ++ [Film title director yearOfRelease [] []]
+addFilm  title director yearOfRelease films = films ++ [Film title director yearOfRelease [] []]
 
 averageFilmRatings :: (Foldable t, Fractional a) => t a -> a
 averageFilmRatings listOfNums = sum listOfNums / fromIntegral(length listOfNums)
 
-likeFilm :: User -> Film -> Film
+likeFilm :: String -> Film -> Film
 likeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (usersWhoLike ++ [user]) usersWhoDislike
 
 addUserLikeToDatabase :: String -> String -> [Film] -> [Film]
-addUserLikeToDatabase user filmToLike listOfFilms = [(likeFilm user $ head $ getFilmFromDatabase filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
+addUserLikeToDatabase user filmToLike films = [(likeFilm user $ head $ getFilmFromDatabase filmToLike films)] ++ (getOtherFilms filmToLike films)
 
 addUserDislikeToDatabase :: String -> String -> [Film] -> [Film]
-addUserDislikeToDatabase user filmToLike listOfFilms = [(dislikeFilm user $ head $  getFilmFromDatabase filmToLike listOfFilms)] ++ (getOtherFilms filmToLike listOfFilms)
+addUserDislikeToDatabase user filmToLike films = [(dislikeFilm user $ head $  getFilmFromDatabase filmToLike films)] ++ (getOtherFilms filmToLike films)
 
 getFilmFromDatabase :: String -> [Film] -> [Film]
-getFilmFromDatabase filmToGet listOfFilms = filter (\film -> title film == filmToGet) listOfFilms
+getFilmFromDatabase filmToGet films = filter (\film -> title film == filmToGet) films
 
 getOtherFilms :: String -> [Film] -> [Film]
-getOtherFilms filmToLike listOfFilms = filter (\film -> title film /= filmToLike) listOfFilms
+getOtherFilms filmToLike films = filter (\film -> title film /= filmToLike) films
 
-dislikeFilm :: User -> Film -> Film
+dislikeFilm :: String -> Film -> Film
 dislikeFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease usersWhoLike  (usersWhoDislike ++ [user])
 
 getRatingOfFilm :: Fractional a => Film -> a
 getRatingOfFilm film = 100 * (\film -> fromIntegral(length $ usersWhoLike film) / fromIntegral((length $ usersWhoDislike film)+(length $ usersWhoLike film))) film
 
-
 filterByRating :: [Film] -> Float -> [Film]
-filterByRating listOfFilms rating = filter (\film -> getRatingOfFilm film >= rating) listOfFilms
+filterByRating films rating = filter (\film -> getRatingOfFilm film >= rating) films
 
 filterFilmByDirector :: String -> [Film] -> [Film]
-filterFilmByDirector directorName listOfFilms = filter (\film -> director film == directorName) listOfFilms
+filterFilmByDirector directorName films = filter (\film -> director film == directorName) films
 
 filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
-filterFilmsByYearOfRelease lowerBound upperBound listOfFilms =  reverse $ filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) listOfFilms
+filterFilmsByYearOfRelease lowerBound upperBound films = sortBy (comparing  getRatingOfFilm ) $ reverse $ filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) films
 
-getListOfFilmsUserHasRated :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
-getListOfFilmsUserHasRated user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
+filmsRatedByUser :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
+filmsRatedByUser user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
 
-getListOfFilmsUserLikes :: String -> [Film] -> [Film]
-getListOfFilmsUserLikes user films = filter (\film -> (elem user $ usersWhoLike film)) films
+filmsLikedByUser :: String -> [Film] -> [Film]
+filmsLikedByUser user films = filter (\film -> (elem user $ usersWhoLike film)) films
 
-getListOfFilmsUserDislikes :: String -> [Film] -> [Film]
-getListOfFilmsUserDislikes user films = filter (\film -> (elem user $ usersWhoDislike film)) films
+filmsDislikedByUser :: String -> [Film] -> [Film]
+filmsDislikedByUser user films = filter (\film -> (elem user $ usersWhoDislike film)) films
 
-getUsersWhoHaveRatedAFilm :: String -> [Film] -> [String] --This function is utilised in the IO section of the program
-getUsersWhoHaveRatedAFilm filmToCheck database = (\film -> usersWhoLike film ++ usersWhoDislike film) $ head $ getFilmFromDatabase filmToCheck database
+usersWhoHaveRatedFilm :: String -> [Film] -> [String] --This function is utilised in the IO section of the program
+usersWhoHaveRatedFilm filmToCheck database = (\film -> usersWhoLike film ++ usersWhoDislike film) $ head $ getFilmFromDatabase filmToCheck database
 
-userHasRatedStringContructor :: String -> [Film] -> [Film] -> String
-userHasRatedStringContructor user likedFilms dislikedFilms = concat $ map (\film -> (user ++ " likes " ++ (title film) ++ "\n")) likedFilms ++ map (\film -> (user ++ " dislikes " ++ (title film) ++ "\n")) dislikedFilms
+userHasRatedStringContructor :: String ->  [Film] -> String
+userHasRatedStringContructor user films = concat $ map (\film -> (user ++ " likes " ++ (title film) ++ "\n")) (filmsLikedByUser user films) ++ map (\film -> (user ++ " dislikes " ++ (title film) ++ "\n")) (filmsDislikedByUser user films)
 
--- foo :: String -> Film -> String
--- foo user film
---             | elem user $ usersWhoLike film = (user ++ " likes " ++ (title film))
---             | elem user $ usersWhoDislike film = (user ++ " dislikes " ++ (title film))
---             | otherwise = ""
---
--- purStrln $ concat $ ["Emmas like dick","asdaisdhu"]
--- putStrLn $ concat $ map (foo "Emma") testDatabase
 
 ----------------------------------------------------------------------------
 -- Demo function to test basic functionality (without persistence - i.e.  --
@@ -159,13 +148,12 @@ demo 1  = putStrLn $ outputDatabase $ addFilm "Sherlock Gnomes" "Guy Ritchie" 20
 demo 2  = putStrLn $ outputDatabase testDatabase
 demo 3  = putStrLn $ outputDatabase $ filterFilmByDirector "Ridley Scott" testDatabase
 demo 4  = putStrLn $ outputDatabase $ filterByRating testDatabase 0.75
-demo 5  = putStrLn $ show $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase
--- demo 6  = putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated "Emma" testDatabase
-demo 6  = putStrLn $ userHasRatedStringContructor "Emma" (getListOfFilmsUserLikes "Emma" testDatabase) (getListOfFilmsUserDislikes "Emma" testDatabase)
+demo 5  = putStrLn $ show $ round   $ averageFilmRatings $ map getRatingOfFilm $ filterFilmByDirector "Ridley Scott" testDatabase
+demo 6  = putStrLn $ userHasRatedStringContructor "Emma" testDatabase
 demo 7  = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Avatar" testDatabase
 demo 71 = putStrLn $ outputDatabase $ addUserLikeToDatabase "Emma" "Titanic" testDatabase
 demo 72 = putStrLn $ outputDatabase $ addUserDislikeToDatabase "Emma" "Jaws" testDatabase
-demo 8  = putStrLn $ outputDatabase $ filterFilmsByYearOfRelease 2000 2006 $ sortBy (comparing getRatingOfFilm ) testDatabase
+demo 8  = putStrLn $ outputDatabase $ filterFilmsByYearOfRelease 2000 2006  testDatabase
 
 -----------------------------------------
 -- Your user interface code goes  here --
@@ -201,7 +189,7 @@ selectionMade n database name   = errorMadeInOptionMenu n database name
 
 filmsAboveRatingIO :: [Film] -> String -> IO()
 filmsAboveRatingIO database name = do
-    putStrLn "What rating do you want films above?" --TODO check rating is between 0 to 100
+    putStrLn "What rating do you want films above?"
     threshold <- getLine
     if (not $ elem False $ map Data.Char.isNumber threshold)
         then do
@@ -268,14 +256,14 @@ outputDatabaseIO database name = do
 
 filmsUserHasRatedIO :: [Film] -> String -> IO()
 filmsUserHasRatedIO database name = do
-    let ratedFilms = getListOfFilmsUserHasRated name database
+    let ratedFilms = filmsRatedByUser name database
     if  length ratedFilms == 0
         then do
              putStrLn "You haven't rated any films"
              optionMenu database name
         else do
              putStrLn "Films you have rated are:"
-             putStrLn $ outputFilmTitles $ getListOfFilmsUserHasRated name database
+             putStrLn $ userHasRatedStringContructor name database
              optionMenu database name
 
 errorMadeInOptionMenu :: String -> [Film] -> String -> IO ()
@@ -298,7 +286,7 @@ likeOrDislikeIO database name = do
         then do
         putStrLn "Would you like to like or dislike the film"
         action <- getLine
-        if (not $ elem name $ getUsersWhoHaveRatedAFilm title database)
+        if (not $ elem name $ usersWhoHaveRatedFilm title database)
             then do
                 if (action == "like" || action == "dislike")
                     then do
@@ -312,49 +300,48 @@ likeOrDislikeIO database name = do
                         optionMenu database name
         else do
             putStrLn "You have already rated that film."
-            putStrLn "Returning you to main menu" --TODO ask them if they want to rate a different film
-            optionMenu database name
+            putStrLn "Do you want to rate a different movie. [yes,no]"
+            response <- getLine
+            if response == "yes"
+                then likeOrDislikeIO database name
+            else optionMenu database name
     else do
         putStrLn $ "The movie " ++ title ++ " doesn't exist in the database"
-        optionMenu database name
-
-
+        putStrLn "Do you want to rate a different movie. [yes,no]"
+        response <- getLine
+        if response == "yes"
+            then likeOrDislikeIO database name
+        else optionMenu database name
 
 addFilmIO :: [Film] -> String -> IO()
 addFilmIO database name = do
     putStrLn "Enter the film name"
     title <- getLine
-    if (title == filter Data.Char.isAlpha title)
+    putStrLn "Enter year of release"
+    yearOfRelease <- getLine
+    --TODO check if film already exists
+    if ((read yearOfRelease :: Int) > 2018 || (read yearOfRelease :: Int) < 1900)
         then do
-            putStrLn "Enter year of release"
-            yearOfRelease <- getLine
-            if ((read yearOfRelease :: Int) > 2018 || (read yearOfRelease :: Int) < 1900)
-                then do
-                    putStrLn "Invalid year of release"
-                    optionMenu database name
-                else do
-                        putStrLn "Enter director name"
-                        director <- getLine
-                        if (director == filter Data.Char.isAlpha director)
-                            then do
-                                let newDatabase = addFilm title director (read yearOfRelease :: Int) database
-                                putStrLn $ "New film :" ++ title ++ " added to database"
-                                optionMenu newDatabase name
-                            else do
-                                putStrLn "Invalid director input"
-                                optionMenu database name
+            putStrLn "Invalid year of release"
+            optionMenu database name
         else do
-             putStrLn "Invalid title entered"
-             optionMenu database name
+                putStrLn "Enter director name"
+                director <- getLine
+                if (director == filter Data.Char.isAlpha director)
+                    then do
+                        let newDatabase = addFilm title director (read yearOfRelease :: Int) database
+                        putStrLn $ "New film :" ++ title ++ " added to database"
+                        optionMenu newDatabase name
+                    else do
+                        putStrLn "Invalid director input"
+                        optionMenu database name
 
 
 printFilm :: Film -> String --If statement to avoid "Rating : NaN" being printed.
-printFilm film = "\nTitle: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nRating: " ++ show(if isNumberNaN (getRatingOfFilm film) then 0 else getRatingOfFilm film)
-
+printFilm film = "\nTitle: "++ title film ++ "\nDirector: " ++ director film  ++ "\nYear of release: " ++ show (yearOfRelease film) ++ "\nRating: " ++ (if isNumberNaN (getRatingOfFilm film) then "0" else  (show $ round $ getRatingOfFilm film) ++ "%")
 
 isNumberNaN :: Float -> Bool --Can't do if num == NaN by IEEE convention
 isNumberNaN a = a /= a
-
 
 outputDatabase :: [Film] -> String
 outputDatabase database = concat $ [printFilm film | film <- database]
