@@ -7,7 +7,7 @@
 -------------
 -- Imports --
 -------------
-import Data.Char(isAlpha,isNumber)
+import Data.Char(isAlpha,isNumber,toLower)
 import Data.List(sortBy)
 import Data.Ord(comparing)
 
@@ -62,7 +62,7 @@ testDatabase = [
                , Film "War Horse" "Steven Spielberg" 2011 ["Garry", "Bill", "Olga", "Jo", "Wally", "Emma", "Tim", "Kate", "Zoe"] ["Heidi", "Jenny", "Sam"]
                , Film "Silence" "Martin Scorsese" 2016 ["Wally", "Emma", "Tim", "Heidi", "Bill", "Jo"] ["Dave", "Olga"]
                , Film "The Terminal" "Steven Spielberg" 2004 ["Kate", "Dave", "Jo", "Wally", "Emma"] ["Heidi"]
-               , Film "Star Wars: The Force Awakens" "J J Abrams" 2015 ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz"] ["Olga", "Jo", "Neal"]
+               , Film "Star Wars: The Force Awakens" "J J Abrams" 2015 ["Emma", "Wally", "Zoe", "Kate", "Bill", "Dave", "Liz"] ["Olga", "Jo", "Wally"]
                , Film "Hugo" "Martin Scorsese" 2011 ["Wally", "Sam"] ["Kate", "Bill", "Dave"]
                ]
 
@@ -87,6 +87,9 @@ addUserLikeToDatabase user filmToLike films = [(likeFilm user $ head $ getFilmFr
 
 addUserDislikeToDatabase :: String -> String -> [Film] -> [Film]
 addUserDislikeToDatabase user filmToLike films = [(dislikeFilm user $ head $  getFilmFromDatabase filmToLike films)] ++ (getOtherFilms filmToLike films)
+
+removeUserRatingFromFilm :: String -> Film -> Film
+removeUserRatingFromFilm user (Film title director yearOfRelease usersWhoLike usersWhoDislike) = Film title director yearOfRelease (filter (/= user) usersWhoLike) (filter (/= user) usersWhoDislike)
 
 getFilmFromDatabase :: String -> [Film] -> [Film]
 getFilmFromDatabase filmToGet films = filter (\film -> title film == filmToGet) films
@@ -211,6 +214,7 @@ filmsAboveRatingIO database name = do
 
 
 
+
 getFilmsByDirectorIO :: [Film] -> String -> IO()
 getFilmsByDirectorIO database name = do
         putStrLn "Enter director who's films you want."
@@ -279,17 +283,18 @@ writeAndExit database = do
 
 likeOrDislikeIO :: [Film] -> String -> IO ()
 likeOrDislikeIO database name = do
-    putStrLn "Would film would you like to rate"
+    putStrLn "What film would you like to rate"
     title <- getLine
-    let film = getFilmFromDatabase  title database
+    let film = getFilmFromDatabase title database
     if length film /= 0
         then do
-        putStrLn "Would you like to like or dislike the film"
-        action <- getLine
         if (not $ elem name $ usersWhoHaveRatedFilm title database)
             then do
+                putStrLn $ "Would you like to like or dislike " ++ title
+                action <- getLine
                 if (action == "like" || action == "dislike")
                     then do
+                         putStrLn "NEWWWW REVIEWWW"
                          let newDatabase = if action == "like"
                              then addUserLikeToDatabase name title database
                              else addUserDislikeToDatabase name title database
@@ -300,11 +305,32 @@ likeOrDislikeIO database name = do
                         optionMenu database name
         else do
             putStrLn "You have already rated that film."
-            putStrLn "Do you want to rate a different movie. [yes,no]"
+
+            putStrLn "Do you want to re-review that film"
             response <- getLine
-            if response == "yes"
-                then likeOrDislikeIO database name
-            else optionMenu database name
+            if (map (Data.Char.toLower) response) == "yes"
+                then do
+                    putStrLn $ "Would you like to like or dislike " ++ title
+                    action <- getLine
+                    if (action == "like" || action == "dislike")
+                        then do
+                            if map Data.Char.toLower action == "like"
+                                then do
+                                    let newDatabase = addUserLikeToDatabase name title $ getOtherFilms title database ++[removeUserRatingFromFilm name $ head $ getFilmFromDatabase title database]
+                                    putStrLn "Review updated"
+                                    optionMenu newDatabase name
+                                else do
+                                    let newDatabase = addUserDislikeToDatabase name title $ getOtherFilms title database ++[removeUserRatingFromFilm name $ head $ getFilmFromDatabase title database]
+                                    putStrLn "Review updated"
+                                    optionMenu newDatabase name
+
+                            else do
+                             putStrLn $ "Invalid input" ++ action
+                             optionMenu database name
+                    else do
+                        putStrLn "Ok. Redirecting to main menu"
+                        optionMenu database name
+
     else do
         putStrLn $ "The movie " ++ title ++ " doesn't exist in the database"
         putStrLn "Do you want to rate a different movie. [yes,no]"
@@ -312,6 +338,7 @@ likeOrDislikeIO database name = do
         if response == "yes"
             then likeOrDislikeIO database name
         else optionMenu database name
+
 
 addFilmIO :: [Film] -> String -> IO()
 addFilmIO database name = do
