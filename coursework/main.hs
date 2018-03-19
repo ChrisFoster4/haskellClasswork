@@ -31,12 +31,6 @@ data Film = Film
 -- Defining Database --
 -----------------------
 
-avatar = Film "Avatar" "James Cameron" 2009 ["Dave", "Amy", "Liz"] ["Olga", "Tim", "Zoe", "Paula"]
-testFilm = Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"] --TODO remove these 3 lines. Purely for testing purposes
-testFilmAlt = Film "Not Blade Runner" "Not Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
-testFilms = [avatar] ++ [testFilm] ++ [testFilm] ++ [testFilm] ++ [testFilmAlt] ++ [avatar]
-
-
 testDatabase :: [Film]
 testDatabase = [
                  Film "Blade Runner" "Ridley Scott" 1982 ["Zoe", "Heidi", "Jo", "Kate", "Emma", "Liz", "Dave"] ["Sam", "Olga", "Tim"]
@@ -112,7 +106,7 @@ filterFilmByDirector directorName films = filter (\film -> director film == dire
 filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
 filterFilmsByYearOfRelease lowerBound upperBound films = sortBy (comparing  getRatingOfFilm ) $ reverse $ filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) films
 
-filmsRatedByUser :: String -> [Film] -> [Film] -- TODO compact 1 liner vs more split out function?
+filmsRatedByUser :: String -> [Film] -> [Film]
 filmsRatedByUser user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
 
 filmsLikedByUser :: String -> [Film] -> [Film]
@@ -146,7 +140,7 @@ userHasRatedStringContructor user films = concat $ map (\film -> (user ++ " like
 --demo 72 = putStrLn all films after "Emma" says she dislikes "Jaws"
 --demo 8  = films between 2000 and 2006 inclusive sorted by website rating
 
-demo :: Int -> IO () --TODO. Break down these into their own functions
+demo :: Int -> IO ()
 demo 1  = putStrLn $ outputDatabase $ addFilm "Sherlock Gnomes" "Guy Ritchie" 2018 testDatabase
 demo 2  = putStrLn $ outputDatabase testDatabase
 demo 3  = putStrLn $ outputDatabase $ filterFilmByDirector "Ridley Scott" testDatabase
@@ -344,24 +338,37 @@ addFilmIO :: [Film] -> String -> IO()
 addFilmIO database name = do
     putStrLn "Enter the film name"
     title <- getLine
-    putStrLn "Enter year of release"
-    yearOfRelease <- getLine
-    --TODO check if film already exists
-    if ((read yearOfRelease :: Int) > 2018 || (read yearOfRelease :: Int) < 1900)
+    let film = getFilmFromDatabase title database
+    if length film == 0
         then do
-            putStrLn "Invalid year of release"
-            optionMenu database name
-        else do
-                putStrLn "Enter director name"
-                director <- getLine
-                if (director == filter Data.Char.isAlpha director)
-                    then do
-                        let newDatabase = addFilm title director (read yearOfRelease :: Int) database
-                        putStrLn $ "New film :" ++ title ++ " added to database"
-                        optionMenu newDatabase name
-                    else do
-                        putStrLn "Invalid director input"
-                        optionMenu database name
+        putStrLn "Enter year of release"
+        yearOfRelease <- getLine
+        if ((read yearOfRelease :: Int) > 2018 || (read yearOfRelease :: Int) < 1900)
+            then do
+                putStrLn "Invalid year of release"
+                optionMenu database name
+            else do
+                    putStrLn "Enter director name"
+                    director <- getLine
+                    if (director == filter Data.Char.isAlpha director)
+                        then do
+                            let newDatabase = addFilm title director (read yearOfRelease :: Int) database
+                            putStrLn $ "New film :" ++ title ++ " added to database"
+                            optionMenu newDatabase name
+                        else do
+                            putStrLn "Invalid director input"
+                            optionMenu database name
+    else do
+        putStrLn $ "The film " ++ title ++ " already exists in the database."
+        putStrLn $ "Would you like to rate " ++ title ++ "?[yes,no]"
+        response <- getLine
+        if (map Data.Char.toLower response) == "yes"
+            then do
+                putStrLn "Transfering you to movie rating now."
+                likeOrDislikeIO database name
+            else do
+                putStrLn "Ok.Transfering you to main menu now"
+                optionMenu database name
 
 
 printFilm :: Film -> String --If statement to avoid "Rating : NaN" being printed.
