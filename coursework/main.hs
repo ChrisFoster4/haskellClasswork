@@ -207,8 +207,6 @@ filmsAboveRatingIO database name = do
         filmsAboveRatingIO database name
 
 
-
-
 getFilmsByDirectorIO :: [Film] -> String -> IO()
 getFilmsByDirectorIO database name = do
         putStrLn "Enter director who's films you want."
@@ -288,7 +286,6 @@ likeOrDislikeIO database name = do
                 action <- getLine
                 if (action == "like" || action == "dislike")
                     then do
-                         putStrLn "NEWWWW REVIEWWW"
                          let newDatabase = if action == "like"
                              then addUserLikeToDatabase name title database
                              else addUserDislikeToDatabase name title database
