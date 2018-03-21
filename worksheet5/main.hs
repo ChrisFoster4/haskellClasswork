@@ -37,7 +37,7 @@ multAll [] = 1
 
 --Exercise 6
 andAllAlt :: [Bool] -> Bool
-andAllAlt list = not$ elem False list 
+andAllAlt list = not$ elem False list
 
 andAll :: [Bool] -> Bool
 andAll (x:xs) = if x == False then False else andAll xs
@@ -88,6 +88,11 @@ subsequencesBroken :: [Int] -> [Int] -> Bool
 subsequencesBroken (y:ys) (x:xs) = if y == x then subsequences ys xs else subsequences (y:ys) xs
 subsequencesBroken [] (x:xs) = True
 subsequencesBroken (_) (_) = False
+
+ss :: [Int] -> [Int] -> Bool
+ss _ [] = False
+ss [] _ = True
+ss x (y:ys) = False || prefix x ys
 
 
 

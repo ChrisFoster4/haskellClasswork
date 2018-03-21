@@ -26,13 +26,15 @@ sumSquaresAlt  = foldr (+) 0  . map (^2)
 --Exercise 5
 zeroToTen list = filter (<= 10) $ filter (>=0) list
 --Exercise 6
-squareRoots list = filter (>0) $ map sqrt list
+squareRoots = filter (>0) . map sqrt
 
 --Exercise 7
 --Has to be recurrisive?
 countBetween upper lower list = length $ filter (\x -> x >= upper && x <= lower) list
 
 countBetweenAlt upper lower list = length $ filter (>=upper) $ filter (<= lower) list
+
+countBetweenAltAlt upper lower list = foldr (+) 0 . filter (>=upper) . filter (<= lower) list
 
 --Exercise 8
 alwaysPositive function list = ( filter (<0) $  map function list ) == []

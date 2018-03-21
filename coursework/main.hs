@@ -106,6 +106,8 @@ filterFilmByDirector directorName films = filter (\film -> director film == dire
 filterFilmsByYearOfRelease :: Int -> Int -> [Film] -> [Film]
 filterFilmsByYearOfRelease lowerBound upperBound films = sortBy (comparing  getRatingOfFilm ) $ reverse $ filter (\film -> (yearOfRelease film >= lowerBound) && yearOfRelease film <= upperBound) films
 
+append
+ $ sortBy (comparing  getRatingOfFilm)
 filmsRatedByUser :: String -> [Film] -> [Film]
 filmsRatedByUser user films = filter (\film -> (elem user $ usersWhoLike film) || (elem user $ usersWhoDislike film)) films
 

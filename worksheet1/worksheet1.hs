@@ -19,14 +19,14 @@ threeDifferent :: Int -> Int -> Int -> Bool
 threeDifferent num1 num2 num3 = ((num1/=num2)&&(num1/=num3))&&(num1/=num3)
 
 {-
-threeDifferent num1 num2 num3 = if (num1<num2<num3 || num1>num2>num3) then True else False 
-threeDifferent num1 num2 num3 = if num1 /= num2 && num1 /= num3 && num2 /= num1 && num2 /= num3 then True else False 
+threeDifferent num1 num2 num3 = if (num1<num2<num3 || num1>num2>num3) then True else False
+threeDifferent num1 num2 num3 = if num1 /= num2 && num1 /= num3 && num2 /= num1 && num2 /= num3 then True else False
 Is there a better way?
 
 -}
 
 divisibleBy :: Int -> Int -> Bool
-divisibleBy num1 num2 = (num1 `mod` num2) == 0 
+divisibleBy num1 num2 = (num1 `mod` num2) == 0
 
 isEven :: Int -> Bool
 isEven number = divisibleBy 2 number --same as "even number"
@@ -50,7 +50,7 @@ main = do
 	print $ areaOfCircle 5.0
 	putStrLn "volumeOfCyclinder 5.0 10.0 called"
 	print $ volumeOfCyclinder 5.0 10.0
-	putStrLn "distance 5.0 20.0 70.0 90.0 called" 
+	putStrLn "distance 5.0 20.0 70.0 90.0 called"
 	print $ distance 5.0 20.0 70.0 90.0
 	putStrLn "threeDifferent 5 6 7 called"
 	print $ threeDifferent 5 6 7
@@ -74,5 +74,3 @@ main = do
 	print $ absolute (-10) --Returns error
 	putStrLn "absolute 5 called"
 	print $ absolute 5
-	
-
